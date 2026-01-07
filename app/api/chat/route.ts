@@ -6,12 +6,12 @@
 
 import { processWithAI } from "@/lib/ai";
 import prisma from "@/prisma/prisma";
-import Fuse from "fuse.js";
 import { NextRequest } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { checkRateLimit, getRateLimitHeaders } from "@/lib/utils/rate-limit";
 import { createLogger, generateRequestId } from "@/lib/utils/logger";
+import { findOrCreateRoutine, findOrCreateWorkout } from "@/lib/db/lookups";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -19,74 +19,6 @@ export const maxDuration = 30;
 const ChatRequestSchema = z.object({
   prompt: z.string().min(1, "Prompt is required").max(10000, "Prompt too long"),
 });
-
-const getRoutineIdByName = async (userId: string, routineName?: string) => {
-  try {
-    const searchName = routineName || "General Workout";
-
-    const routines = await prisma.routine.findMany({
-      where: { user_id: userId },
-    });
-
-    if (routines.length > 0 && searchName) {
-      const fuse = new Fuse(routines, {
-        keys: ["routine_name"],
-        threshold: 0.4,
-      });
-
-      const result = fuse.search(searchName);
-      if (result.length > 0) {
-        return result[0].item.routine_id;
-      }
-    }
-
-    const newRoutine = await prisma.routine.create({
-      data: {
-        routine_name: searchName,
-        user_id: userId,
-      },
-    });
-    return newRoutine.routine_id;
-  } catch (error) {
-    console.error("Error fetching routine ID:", error);
-    throw new Error("Failed to retrieve or create routine ID");
-  }
-};
-
-const getWorkoutIdByName = async (routineId: string, workoutName?: string, date?: string) => {
-  try {
-    const searchName = workoutName || "Workout";
-
-    const workouts = await prisma.workout.findMany({
-      where: { routine_id: routineId },
-    });
-
-    if (workouts.length > 0 && searchName) {
-      const fuse = new Fuse(workouts, {
-        keys: ["workout_name"],
-        threshold: 0.4,
-      });
-
-      const result = fuse.search(searchName);
-      if (result.length > 0) {
-        return result[0].item.workout_id;
-      }
-    }
-
-    const newWorkout = await prisma.workout.create({
-      data: {
-        workout_name: searchName,
-        routine_id: routineId,
-        date: date ? new Date(date) : new Date(),
-        total_calories_burned: null,
-      },
-    });
-    return newWorkout.workout_id;
-  } catch (error) {
-    console.error("Error fetching workout ID:", error);
-    throw new Error("Failed to retrieve or create workout ID");
-  }
-};
 
 export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
@@ -202,11 +134,11 @@ export async function POST(req: NextRequest) {
         ) {
           const { workoutName, sets, routineName, date, totalCalories } = result;
 
-          const routineId = await getRoutineIdByName(userId, routineName);
-          const workoutId = await getWorkoutIdByName(
+          const routineId = await findOrCreateRoutine(userId, routineName || "General Workout");
+          const workoutId = await findOrCreateWorkout(
+            userId,
             routineId,
-            workoutName?.[0] || "Workout",
-            date
+            workoutName?.[0] || "Workout"
           );
 
           if (totalCalories) {

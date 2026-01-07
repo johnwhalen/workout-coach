@@ -2,6 +2,7 @@
 import { Button, Card, Select, Text, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { darkInputStyles } from "@/lib/styles/forms";
 
 interface FitnessProfileModalProps {
   isOpen: boolean;
@@ -88,14 +89,7 @@ export default function FitnessProfileModal({
               }
               required
               className="text-white"
-              styles={{
-                input: {
-                  backgroundColor: "#1e293b",
-                  borderColor: "#475569",
-                  color: "white",
-                },
-                label: { color: "white" },
-              }}
+              styles={darkInputStyles}
             />
 
             <TextInput
@@ -109,14 +103,7 @@ export default function FitnessProfileModal({
               }
               required
               className="text-white"
-              styles={{
-                input: {
-                  backgroundColor: "#1e293b",
-                  borderColor: "#475569",
-                  color: "white",
-                },
-                label: { color: "white" },
-              }}
+              styles={darkInputStyles}
             />
 
             <TextInput
@@ -130,14 +117,7 @@ export default function FitnessProfileModal({
               }
               required
               className="text-white"
-              styles={{
-                input: {
-                  backgroundColor: "#1e293b",
-                  borderColor: "#475569",
-                  color: "white",
-                },
-                label: { color: "white" },
-              }}
+              styles={darkInputStyles}
             />
 
             <Select
@@ -150,14 +130,7 @@ export default function FitnessProfileModal({
               }
               required
               className="text-white"
-              styles={{
-                input: {
-                  backgroundColor: "#1e293b",
-                  borderColor: "#475569",
-                  color: "white",
-                },
-                label: { color: "white" },
-              }}
+              styles={darkInputStyles}
             />
 
             <div className="flex gap-3 pt-4">
