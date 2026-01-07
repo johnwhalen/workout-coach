@@ -132,9 +132,9 @@ test.describe("Calendar Verification", () => {
   });
 
   test("monthly summary displays correctly", async ({ page }) => {
-    // Check stats are present (may be in monthly summary section)
-    await expect(page.getByText(/Workout Days/i).first()).toBeVisible();
-    await expect(page.getByText(/Total Sets/i).first()).toBeVisible();
+    // Check stats are present - UI shows "Days Active", "Workouts", "Sets", "Calories"
+    await expect(page.getByText(/Days Active/i)).toBeVisible();
+    await expect(page.getByText(/^Sets$/i)).toBeVisible();
   });
 
   test("can navigate between months", async ({ page }) => {

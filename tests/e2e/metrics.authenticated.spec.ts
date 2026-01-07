@@ -55,8 +55,9 @@ test.describe("Metrics - Calendar View", () => {
   });
 
   test("displays monthly summary stats", async ({ page }) => {
-    await expect(page.getByText(/Workout Days/i)).toBeVisible();
-    await expect(page.getByText(/Total Sets/i)).toBeVisible();
+    // UI shows "Days Active", "Workouts", "Sets", "Calories"
+    await expect(page.getByText(/Days Active/i)).toBeVisible();
+    await expect(page.getByText(/^Sets$/i)).toBeVisible();
   });
 
   test("can click on calendar dates", async ({ page }) => {
