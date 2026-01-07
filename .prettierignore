@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Generated files
+*.min.js
+*.min.css
+package-lock.json
+
+# Database
+prisma/migrations/
+
+# IDE
+.idea/
+.vscode/
+
+# Misc
+.vercel/
+coverage/
+.env*
