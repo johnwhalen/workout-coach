@@ -11,10 +11,16 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        // Swiss minimalist palette
+        navy: {
+          900: "#0f172a",
+          700: "#1e3a5f",
+        },
+        gold: "#DAA520",
       },
       fontFamily: {
-        "bricolage-grotesque": ["var(--font-bricolage-grotesque)"],
-        jost: ["var(--font-jost)"],
+        // Single font: Jost for everything
+        sans: ["var(--font-jost)", "system-ui", "sans-serif"],
       },
     },
   },

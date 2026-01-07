@@ -2,37 +2,20 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { createTheme, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { Bricolage_Grotesque, Jost } from "next/font/google";
-import localFont from "next/font/local";
+import { Jost } from "next/font/google";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import "./globals.css";
 
-const bricolageGrotesque = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage-grotesque",
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
-});
-
+// Single font: Jost for everything (Swiss minimalism)
 const jost = Jost({
   subsets: ["latin"],
   variable: "--font-jost",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const theme = createTheme({
   fontFamily: "var(--font-jost), sans-serif",
   primaryColor: "cyan",
-});
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
 });
 
 export const metadata = {
@@ -92,10 +75,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${jost.variable} ${bricolageGrotesque.variable} ${geistSans.variable} ${geistMono.variable}`}
-    >
+    <html lang="en" className={jost.variable}>
       <body className={`antialiased`}>
         <ClerkProvider
           signInUrl="/login"

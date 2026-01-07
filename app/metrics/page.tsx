@@ -36,15 +36,15 @@ import {
 
 import type { Routine, Workout } from "@/types/database";
 
-// Styles
-const containerStyle = "fixed inset-0 flex justify-center items-center bg-slate-900 p-4";
+// Styles (Swiss minimalist)
+const containerStyle = "fixed inset-0 flex justify-center items-center bg-navy-900 p-4";
 const boxStyle =
-  "glassmorphism rounded-2xl shadow-2xl p-6 w-full max-w-6xl h-[90vh] flex flex-col border border-slate-800 backdrop-blur-lg";
+  "glassmorphism rounded-xl p-6 w-full max-w-6xl h-[90vh] flex flex-col border border-slate-700/30";
 const contentStyle = "flex-grow overflow-y-auto custom-scrollbar";
-const titleStyle =
-  "font-extrabold text-3xl mb-6 text-blue-400 tracking-tight drop-shadow-lg font-bricolage-grotesque";
+const titleStyle = "font-bold text-2xl text-gold";
 
-type TabType = "calendar" | "workouts" | "calories" | "profile" | "analytics";
+// Consolidated tabs: Calendar (with analytics), Workouts, Profile (with calories)
+type TabType = "calendar" | "workouts" | "profile";
 
 export default function Dashboard() {
   // Local state
@@ -99,17 +99,26 @@ export default function Dashboard() {
     await updateProfile.mutateAsync(data);
   };
 
-  // Render content based on active tab
+  // Render content based on active tab (consolidated)
   const renderContent = () => {
     switch (activeTab) {
       case "calendar":
+        // Calendar now includes analytics summary
         return (
-          <CalendarView
-            workoutsByDate={workoutsByDate}
-            selectedDate={selectedDate}
-            onDateSelect={handleDateSelect}
-            selectedDateWorkouts={selectedDateWorkouts}
-          />
+          <div className="space-y-6">
+            <CalendarView
+              workoutsByDate={workoutsByDate}
+              selectedDate={selectedDate}
+              onDateSelect={handleDateSelect}
+              selectedDateWorkouts={selectedDateWorkouts}
+            />
+            <AnalyticsView
+              summary={analyticsData}
+              streakData={streakData}
+              strengthData={strengthData}
+              isLoading={workoutsByDateLoading}
+            />
+          </div>
         );
       case "workouts":
         return (
@@ -125,24 +134,17 @@ export default function Dashboard() {
             onBackToWorkouts={handleBackToWorkouts}
           />
         );
-      case "calories":
-        return <CalorieStats data={calorieData ?? null} isLoading={caloriesLoading} />;
       case "profile":
+        // Profile now includes calorie stats
         return (
-          <UserProfileStats
-            profile={userProfile ?? null}
-            isLoading={profileLoading}
-            onSave={handleSaveProfile}
-          />
-        );
-      case "analytics":
-        return (
-          <AnalyticsView
-            summary={analyticsData}
-            streakData={streakData}
-            strengthData={strengthData}
-            isLoading={workoutsByDateLoading}
-          />
+          <div className="space-y-6">
+            <UserProfileStats
+              profile={userProfile ?? null}
+              isLoading={profileLoading}
+              onSave={handleSaveProfile}
+            />
+            <CalorieStats data={calorieData ?? null} isLoading={caloriesLoading} />
+          </div>
         );
       default:
         return null;
@@ -153,11 +155,11 @@ export default function Dashboard() {
     <div className={containerStyle}>
       <div className={boxStyle}>
         {/* Header */}
-        <div className="flex flex-row items-center justify-between gap-x-4">
-          <h1 className={titleStyle + " m-0 mb-0"}>Dashboard</h1>
-          <div className="flex flex-row items-center gap-x-3">
+        <div className="flex flex-row items-center justify-between mb-4">
+          <h1 className={titleStyle}>Dashboard</h1>
+          <div className="flex flex-row items-center gap-3">
             <Link
-              className="px-3 py-1 bg-blue-500/80 text-white rounded-lg hover:bg-blue-600/90 transition shadow text-center font-medium"
+              className="px-4 py-2 bg-gold hover:bg-gold/90 text-navy-900 rounded-lg transition font-medium"
               href="/chat"
             >
               Chat
@@ -173,189 +175,7 @@ export default function Dashboard() {
         <div className={contentStyle}>{renderContent()}</div>
       </div>
 
-      {/* Global Styles */}
-      <style jsx global>{`
-        .glassmorphism {
-          background: rgba(17, 24, 39, 0.7);
-          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-          border-radius: 1.5rem;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(30, 58, 138, 0.25);
-          border-radius: 8px;
-        }
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: #334155 #0f172a;
-        }
-
-        /* Calendar Styles */
-        .react-calendar {
-          background: transparent !important;
-          border: none !important;
-          font-family: inherit;
-          width: 100%;
-          color: white;
-        }
-
-        .react-calendar-dark {
-          background: transparent !important;
-          border: none !important;
-          font-family: inherit;
-          width: 100%;
-          color: white;
-        }
-
-        .react-calendar__navigation {
-          background: rgba(30, 41, 59, 0.8) !important;
-          border-radius: 12px !important;
-          margin-bottom: 1rem !important;
-          padding: 0.5rem !important;
-          border: 1px solid rgba(51, 65, 85, 0.5) !important;
-        }
-
-        .react-calendar__navigation button {
-          color: #f1f5f9 !important;
-          background: none !important;
-          border: none !important;
-          font-weight: 600 !important;
-          font-size: 1rem !important;
-          padding: 0.5rem 1rem !important;
-          border-radius: 8px !important;
-          transition: all 0.2s ease !important;
-        }
-
-        .react-calendar__navigation button:hover {
-          background: rgba(59, 130, 246, 0.3) !important;
-          transform: scale(1.05);
-        }
-
-        .react-calendar__navigation button:disabled {
-          background: rgba(100, 116, 139, 0.2) !important;
-          color: #64748b !important;
-        }
-
-        .react-calendar__navigation__label {
-          font-size: 1.1rem !important;
-          font-weight: 700 !important;
-          color: #60a5fa !important;
-        }
-
-        .react-calendar__month-view__weekdays {
-          background: rgba(51, 65, 85, 0.6) !important;
-          border-radius: 8px !important;
-          padding: 0.75rem 0 !important;
-          margin-bottom: 0.5rem !important;
-        }
-
-        .react-calendar__month-view__weekdays__weekday {
-          color: #94a3b8 !important;
-          font-weight: 600 !important;
-          font-size: 0.875rem !important;
-          text-transform: uppercase !important;
-          letter-spacing: 0.05em !important;
-        }
-
-        .react-calendar__month-view__weekdays__weekday abbr {
-          text-decoration: none !important;
-        }
-
-        .react-calendar__tile {
-          background: rgba(30, 41, 59, 0.6) !important;
-          border: 1px solid rgba(51, 65, 85, 0.4) !important;
-          color: #e2e8f0 !important;
-          padding: 1rem 0.5rem !important;
-          position: relative !important;
-          transition: all 0.2s ease !important;
-          border-radius: 8px !important;
-          margin: 2px !important;
-          font-weight: 500 !important;
-          min-height: 3rem !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-        }
-
-        .react-calendar__tile:hover {
-          background: rgba(59, 130, 246, 0.3) !important;
-          border-color: rgba(59, 130, 246, 0.6) !important;
-          transform: scale(1.05) !important;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
-        }
-
-        .react-calendar__tile--active {
-          background: rgba(59, 130, 246, 0.7) !important;
-          border-color: #3b82f6 !important;
-          color: white !important;
-          font-weight: 700 !important;
-          box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4) !important;
-        }
-
-        .react-calendar__tile--now {
-          background: rgba(168, 85, 247, 0.3) !important;
-          border-color: rgba(168, 85, 247, 0.6) !important;
-          color: #f3e8ff !important;
-          font-weight: 600 !important;
-        }
-
-        .react-calendar__tile--now:hover {
-          background: rgba(168, 85, 247, 0.5) !important;
-        }
-
-        .react-calendar__tile.has-workout {
-          background: rgba(16, 185, 129, 0.2) !important;
-          border-color: rgba(16, 185, 129, 0.5) !important;
-          color: #d1fae5 !important;
-        }
-
-        .react-calendar__tile.has-workout:hover {
-          background: rgba(16, 185, 129, 0.4) !important;
-          border-color: rgba(16, 185, 129, 0.7) !important;
-        }
-
-        .react-calendar__tile--neighboringMonth {
-          color: #64748b !important;
-          background: rgba(30, 41, 59, 0.2) !important;
-        }
-
-        .react-calendar__tile--weekend {
-          color: #fbbf24 !important;
-        }
-
-        .workout-indicator {
-          position: absolute !important;
-          bottom: 4px !important;
-          right: 4px !important;
-          background: #10b981 !important;
-          color: white !important;
-          border-radius: 50% !important;
-          width: 20px !important;
-          height: 20px !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          font-size: 0.75rem !important;
-          font-weight: 700 !important;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .workout-count {
-          color: white !important;
-          font-size: 0.7rem !important;
-          font-weight: 700 !important;
-        }
-
-        .calendar-container {
-          padding: 0.5rem;
-          background: rgba(15, 23, 42, 0.3);
-          border-radius: 12px;
-          border: 1px solid rgba(51, 65, 85, 0.3);
-        }
-      `}</style>
+      {/* Styles moved to app/globals.css for consolidation */}
     </div>
   );
 }
@@ -366,21 +186,22 @@ interface TabNavigationProps {
 }
 
 function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
+  // Consolidated to 3 tabs
   const tabs: { id: TabType; label: string }[] = [
     { id: "calendar", label: "Calendar" },
     { id: "workouts", label: "Workouts" },
-    { id: "calories", label: "Calories" },
     { id: "profile", label: "Profile" },
-    { id: "analytics", label: "Analytics" },
   ];
 
   return (
-    <div className="mb-4 flex flex-wrap gap-2">
+    <div className="mb-4 flex gap-2">
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          className={`px-4 py-2 rounded-lg transition ${
-            activeTab === tab.id ? "bg-blue-600 text-white" : "bg-slate-700 text-gray-300"
+          className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+            activeTab === tab.id
+              ? "bg-gold text-navy-900 font-medium"
+              : "bg-navy-700/60 text-slate-400 hover:text-white"
           }`}
           onClick={() => onTabChange(tab.id)}
         >

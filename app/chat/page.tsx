@@ -23,35 +23,14 @@ export default function ChatBox() {
   const [user, setUser] = useState("");
   const [showFitnessModal, setShowFitnessModal] = useState(false);
 
-  // Welcome message constant - shown at the start of every session
+  // Welcome message - concise (Swiss minimalism)
   const welcomeMessage: ChatMessage = {
-    id: -1, // Use -1 to ensure it's always first and unique
-    text: `# Welcome to **Golden Harbor Workout Coach**! 💪
+    id: -1,
+    text: `# Welcome to Golden Harbor
 
-I'm your personal AI training companion. I'll help you with progressive overload, adapt workouts to how you're feeling, and track your strength gains.
+I'm your AI training coach. Log workouts naturally, get progressive overload recommendations, and track your strength gains.
 
-## What I can do:
-
-### 🏋️ Workout Management
-- \`create routine leg day\`
-- \`add squats, bench press, deadlifts to leg day\`
-- \`i did 3 sets of squats with 10 reps of 50kg\`
-
-### 📊 Workout History
-- \`What workouts did I do yesterday?\`
-- \`Show me my workout history\`
-- \`How many sets of squats have I done?\`
-
-### 🔥 Calorie Tracking
-- \`I burned 150 calories doing squats\`
-- Or let me **estimate** calories for you automatically!
-
-### 🧠 Fitness Questions
-- \`How do I improve my squat form?\`
-- \`What exercises target the chest?\`
-- \`How many calories should I eat to build muscle?\`
-
-> **Tip:** Ask me about your workout history - I have access to all your past workouts!`,
+**Try:** "I did 3 sets of bench at 25 lbs" or "What should I lift today?"`,
     isUser: false,
   };
 
@@ -407,25 +386,23 @@ I'm your personal AI training companion. I'll help you with progressive overload
   }, [messages]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-slate-900 p-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-navy-900 p-4">
       <FitnessProfileModal
         isOpen={showFitnessModal}
         onClose={() => setShowFitnessModal(false)}
         onComplete={() => {
           setShowFitnessModal(false);
-          toast.success("Welcome to Golden Harbor! Let's build some strength!");
+          toast.success("Welcome to Golden Harbor!");
         }}
       />
 
       <div className="w-full max-w-6xl h-[90vh] flex flex-col">
-        <div className="flex-grow flex flex-col glassmorphism rounded-2xl p-6 shadow-2xl mb-4 border border-slate-800 backdrop-blur-lg relative">
+        <div className="flex-grow flex flex-col glassmorphism rounded-xl p-6 border border-slate-700/30 relative">
           <div className="flex items-center mb-6">
-            <h1 className="text-3xl font-extrabold text-amber-400 tracking-tight drop-shadow-lg">
-              Golden Harbor
-            </h1>
-            <div className="ml-auto flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gold">Golden Harbor</h1>
+            <div className="ml-auto flex items-center gap-3">
               <Link
-                className="px-3 py-1 bg-amber-600/80 text-white rounded-lg hover:bg-amber-500/90 transition shadow text-center font-medium"
+                className="px-4 py-2 bg-gold hover:bg-gold/90 text-navy-900 rounded-lg transition font-medium"
                 href="/metrics"
               >
                 Dashboard
@@ -453,13 +430,11 @@ I'm your personal AI training companion. I'll help you with progressive overload
                   className={`flex ${message.isUser ? "justify-end" : "justify-start"} mb-3`}
                 >
                   <div
-                    className={`chat-bubble transition-all duration-300 ease-out ${
+                    className={`chat-bubble transition-all duration-200 ${
                       message.isUser
-                        ? "bg-blue-600 text-white rounded-br-2xl rounded-tl-2xl rounded-bl-lg"
-                        : "bg-slate-800/80 text-white rounded-bl-2xl rounded-tr-2xl rounded-br-lg border border-blue-900/20"
-                    } max-w-md p-3 shadow-md
-                      ${lastMsgId === message.id ? "animate-fadein" : ""}
-                      `}
+                        ? "bg-gold text-navy-900 rounded-xl"
+                        : "bg-navy-700/80 text-white rounded-xl border border-slate-700/30"
+                    } max-w-xl p-4 ${lastMsgId === message.id ? "animate-fadein" : ""}`}
                   >
                     {message.text ? (
                       <div className="prose prose-sm prose-invert max-w-none">
@@ -541,7 +516,7 @@ I'm your personal AI training companion. I'll help you with progressive overload
               sendMessage();
             }}
           >
-            <div className="flex flex-row items-center w-full bg-slate-800/90 border border-slate-700 rounded-2xl shadow-lg px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-200 min-h-[48px]">
+            <div className="flex flex-row items-center w-full bg-navy-700/80 border border-slate-700/30 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-gold/50 transition-all duration-200 min-h-[48px]">
               <div className="flex-grow flex items-center">
                 <textarea
                   value={inputText}
@@ -570,14 +545,11 @@ I'm your personal AI training companion. I'll help you with progressive overload
                 />
               </div>
               <Button
-                color="blue"
+                color="yellow"
                 radius="xl"
                 type="submit"
                 loading={loading}
-                className="ml-2 w-11 h-11 min-w-0 min-h-0 p-0 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all duration-150 active:scale-95 send-btn"
-                style={{
-                  boxShadow: "0 2px 8px 0 rgba(37, 99, 235, 0.15)",
-                }}
+                className="ml-2 w-10 h-10 min-w-0 min-h-0 p-0 flex items-center justify-center rounded-lg bg-gold hover:bg-gold/90 text-navy-900 transition-all duration-150 active:scale-95 send-btn"
               >
                 <svg
                   className="w-5 h-5"
@@ -593,76 +565,7 @@ I'm your personal AI training companion. I'll help you with progressive overload
           </form>
         </div>
       </div>
-      {/* Animations & Glassmorphism styles */}
-      <style jsx global>{`
-        .glassmorphism {
-          background: rgba(17, 24, 39, 0.7);
-          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-          border-radius: 1.5rem;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .chat-bubble {
-          opacity: 0.95;
-          transition:
-            background 0.2s,
-            box-shadow 0.2s;
-        }
-        .chat-bubble.animate-fadein {
-          animation: fadein 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @keyframes fadein {
-          from {
-            opacity: 0;
-            transform: translateY(16px) scale(0.98);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(30, 58, 138, 0.25);
-          border-radius: 8px;
-        }
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: #334155 #0f172a;
-        }
-        .send-btn:active {
-          filter: brightness(0.95);
-        }
-        .typing-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background-color: #60a5fa;
-          animation: typing 1.4s infinite ease-in-out;
-        }
-        .typing-dot:nth-child(1) {
-          animation-delay: 0s;
-        }
-        .typing-dot:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-        .typing-dot:nth-child(3) {
-          animation-delay: 0.4s;
-        }
-        @keyframes typing {
-          0%,
-          60%,
-          100% {
-            transform: translateY(0);
-            opacity: 0.4;
-          }
-          30% {
-            transform: translateY(-10px);
-            opacity: 1;
-          }
-        }
-      `}</style>
+      {/* Styles moved to app/globals.css for consolidation */}
     </div>
   );
 }
