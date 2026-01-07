@@ -16,6 +16,10 @@ model Set {
   date            DateTime @default(now())
   calories_burned Float?
   workout         Workout  @relation(fields: [workout_id], references: [workout_id])
+
+  // Indexes for query optimization
+  @@index([workout_id])
+  @@index([date])
 }
 
 model Workout {
@@ -29,6 +33,11 @@ model Workout {
   workout_type          String?
   Set                   Set[]
   routine               Routine  @relation(fields: [routine_id], references: [routine_id])
+
+  // Indexes for query optimization
+  @@index([routine_id])
+  @@index([date])
+  @@index([routine_id, date])
 }
 
 model Routine {
@@ -38,6 +47,9 @@ model Routine {
   date_created DateTime  @default(now())
   user         User      @relation(fields: [user_id], references: [user_id])
   Workout      Workout[]
+
+  // Index for query optimization
+  @@index([user_id])
 }
 
 model User {

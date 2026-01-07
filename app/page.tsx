@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-import axios from "axios";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
@@ -26,22 +25,28 @@ const Home = () => {
 
   const adduser = async () => {
     try {
-      const response = await axios.post("/api/users");
-      if (response.data?.data?.user_id) {
-        setUser(response.data.data.user_id);
+      const response = await fetch("/api/users", { method: "POST" });
+      const data = await response.json();
+      if (data?.data?.user_id) {
+        setUser(data.data.user_id);
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
       }
-    } catch (error: any) {
+    } catch {
       setIsLoggedIn(false);
       toast.error("");
     }
   };
   const runprocessor = async () => {
     try {
-      const resp = await axios.post("/api/chat", { prompt, user });
-      console.log(resp);
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, user }),
+      });
+      const data = await response.json();
+      console.log(data);
     } catch (error) {
       console.log(error);
     }

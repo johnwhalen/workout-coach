@@ -32,51 +32,52 @@ Here is the database schema for tracking user routines, workouts, and sets:
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/workout-coach.git
-2. Navigate into the project directory:
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/workout-coach.git
+    ```
+2.  Navigate into the project directory:
 
     ```bash
 
     cd workout-coach
     ```
 
-3. Install dependencies:
+3.  Install dependencies:
 
     ```bash
 
     npm install
     ```
 
-4. Set up environment variables by creating a .env file. Add your Prisma database URL, Clerk credentials, and other required environment variables:
+4.  Set up environment variables by creating a .env file. Add your Prisma database URL, Clerk credentials, and other required environment variables:
 
-   ```bash
-   DATABASE_URL="your_postgres_database_url"
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key"
-   CLERK_SECRET_KEY="your_clerk_secret_key"
-   ANTHROPIC_API_KEY="your_anthropic_api_key"
-   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
-   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
-   NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
-   NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
-   ```
+    ```bash
+    DATABASE_URL="your_postgres_database_url"
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key"
+    CLERK_SECRET_KEY="your_clerk_secret_key"
+    ANTHROPIC_API_KEY="your_anthropic_api_key"
+    NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
+    ```
 
-5. Apply Prisma migrations to your database:
+5.  Apply Prisma migrations to your database:
 
     ```bash
 
     npx prisma migrate dev
     ```
 
-6. Run the development server:
+6.  Run the development server:
 
-    ```bash
+        ```bash
 
-    npm run dev
-    ```
-Open your browser and go to http://localhost:3000 to see the app in action.
+        npm run dev
+        ```
 
+    Open your browser and go to http://localhost:3000 to see the app in action.
 
 **License**
 

@@ -22,7 +22,9 @@ export async function GET() {
         earliest: w.sessions[0]?.date,
         latest: w.sessions[w.sessions.length - 1]?.date,
       },
-      exercises: Array.from(new Set(w.sessions.flatMap((s) => s.sets.map((set) => set.exerciseName)))),
+      exercises: Array.from(
+        new Set(w.sessions.flatMap((s) => s.sets.map((set) => set.exerciseName)))
+      ),
       totalSets: w.sessions.reduce((sum, s) => sum + s.sets.length, 0),
     }));
 
@@ -48,10 +50,7 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Path to the Workouts.xlsx file

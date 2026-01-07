@@ -2,7 +2,6 @@
 import FitnessProfileModal from "@/components/modals/FitnessProfileModal";
 import { UserButton } from "@clerk/nextjs";
 import { Button } from "@mantine/core";
-import axios from "axios";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -58,15 +57,16 @@ I'm your personal AI training companion. I'll help you with progressive overload
 
   const adduser = async () => {
     try {
-      const response = await axios.post("/api/users");
-      console.log(response.data);
-      setUser(response.data.data.user_id);
+      const response = await fetch("/api/users", { method: "POST" });
+      const data = await response.json();
+      console.log(data);
+      setUser(data.data.user_id);
 
       // Check if fitness profile is complete
-      if (!response.data.data.profile_complete) {
+      if (!data.data.profile_complete) {
         setShowFitnessModal(true);
       }
-    } catch (error: any) {
+    } catch {
       toast.error("Failed to create user");
     }
   };
@@ -75,9 +75,10 @@ I'm your personal AI training companion. I'll help you with progressive overload
     if (!user) return;
     setLoadingHistory(true);
     try {
-      const response = await axios.get(`/api/users/history`);
-      console.log(response.data);
-      const history = response.data.chatHistory;
+      const response = await fetch("/api/users/history");
+      const responseData = await response.json();
+      console.log(responseData);
+      const history = responseData.chatHistory;
 
       // If no history, just show the welcome message
       if (!history || history.length === 0) {
@@ -323,8 +324,9 @@ I'm your personal AI training companion. I'll help you with progressive overload
       // Update chat history after completion
       if (aiResponseText) {
         try {
-          const gethistory = await axios.get(`/api/users/history`);
-          const userHistory = gethistory.data.chatHistory || [];
+          const historyResponse = await fetch("/api/users/history");
+          const historyData = await historyResponse.json();
+          const userHistory = historyData.chatHistory || [];
 
           // Check if this conversation is already in history to prevent duplicates
           const userMessageText = currentInput.trim();
@@ -366,8 +368,10 @@ I'm your personal AI training companion. I'll help you with progressive overload
             const aiMessageObj = JSON.stringify({ text: historyMessage, isUser: false, timestamp });
             userHistory.push(aiMessageObj);
 
-            await axios.post(`/api/users/history`, {
-              messages: userHistory,
+            await fetch("/api/users/history", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ messages: userHistory }),
             });
           }
         } catch (historyError) {
