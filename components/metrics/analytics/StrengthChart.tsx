@@ -4,8 +4,10 @@
  * StrengthChart Component
  *
  * Line chart showing strength progression over time.
+ * Swiss minimalist design with mobile-optimized layout.
  */
 
+import { memo } from "react";
 import {
   CartesianGrid,
   Line,
@@ -21,20 +23,19 @@ interface StrengthChartProps {
   data: WeeklyStrength[];
 }
 
-const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
+// Swiss-aligned colors - gold primary, white secondary, slate tertiary
+const COLORS = ["#DAA520", "#ffffff", "#94a3b8", "#64748b", "#475569"];
 
-export function StrengthChart({ data }: StrengthChartProps) {
+export const StrengthChart = memo(function StrengthChart({ data }: StrengthChartProps) {
   if (!data || data.length === 0) {
     return (
       <div>
-        <h3 className="text-white font-semibold mb-3 font-bricolage-grotesque">
-          Strength Progression
-        </h3>
-        <div className="bg-slate-800/80 p-6 rounded-xl border border-blue-900/20 backdrop-blur-sm">
-          <div className="text-center py-8">
-            <p className="text-gray-400 mb-2">No strength data available yet</p>
-            <p className="text-gray-500 text-sm">
-              Start logging workouts with weights to see your strength progression!
+        <h3 className="text-white font-semibold mb-3">Strength Progression</h3>
+        <div className="bg-navy-700/60 p-6 rounded-xl border border-slate-700/30">
+          <div className="text-center py-6">
+            <p className="text-slate-400">No strength data available yet</p>
+            <p className="text-slate-400 text-sm mt-1">
+              Start logging workouts with weights to see your progression
             </p>
           </div>
         </div>
@@ -49,37 +50,39 @@ export function StrengthChart({ data }: StrengthChartProps) {
 
   return (
     <div>
-      <h3 className="text-white font-semibold mb-3 font-bricolage-grotesque">
-        Strength Progression
-      </h3>
-      <div className="bg-slate-800/80 p-6 rounded-xl border border-blue-900/20 backdrop-blur-sm">
-        <ResponsiveContainer width="100%" height={350}>
-          <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-            <XAxis dataKey="week" stroke="#9CA3AF" fontSize={12} tick={{ fill: "#9CA3AF" }} />
+      <h3 className="text-white font-semibold mb-3">Strength Progression</h3>
+      <div className="bg-navy-700/60 p-3 md:p-6 rounded-xl border border-slate-700/30">
+        {/* Responsive chart height */}
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} vertical={false} />
+            <XAxis
+              dataKey="week"
+              stroke="#64748b"
+              fontSize={11}
+              tick={{ fill: "#64748b" }}
+              tickLine={false}
+              axisLine={{ stroke: "#334155" }}
+            />
             <YAxis
-              stroke="#9CA3AF"
-              fontSize={12}
-              tick={{ fill: "#9CA3AF" }}
-              label={{
-                value: "Weight (kg)",
-                angle: -90,
-                position: "insideLeft",
-                style: { textAnchor: "middle", fill: "#9CA3AF" },
-              }}
+              stroke="#64748b"
+              fontSize={11}
+              tick={{ fill: "#64748b" }}
+              tickLine={false}
+              axisLine={false}
+              width={35}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(31, 41, 55, 0.95)",
-                border: "1px solid #374151",
-                borderRadius: "12px",
-                color: "#F9FAFB",
-                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
-                backdropFilter: "blur(10px)",
+                backgroundColor: "#1e3a5f",
+                border: "1px solid #334155",
+                borderRadius: "8px",
+                color: "#ffffff",
+                fontSize: "13px",
               }}
-              labelStyle={{ color: "#D1D5DB", fontWeight: "bold" }}
+              labelStyle={{ color: "#94a3b8", fontWeight: 500, marginBottom: 4 }}
               formatter={(value: number | string, name: string) => [
-                value ? `${Math.round(Number(value) * 10) / 10} kg` : "No data",
+                value ? `${Math.round(Number(value) * 10) / 10} kg` : "—",
                 name,
               ]}
             />
@@ -89,28 +92,30 @@ export function StrengthChart({ data }: StrengthChartProps) {
                 type="monotone"
                 dataKey={exercise}
                 stroke={COLORS[index % COLORS.length]}
-                strokeWidth={3}
-                dot={{ r: 4, fill: COLORS[index % COLORS.length] }}
+                strokeWidth={2}
+                dot={{ r: 3, fill: COLORS[index % COLORS.length], strokeWidth: 0 }}
                 activeDot={{
-                  r: 6,
+                  r: 5,
                   fill: COLORS[index % COLORS.length],
-                  stroke: COLORS[index % COLORS.length],
-                  strokeWidth: 2,
+                  strokeWidth: 0,
                 }}
                 connectNulls={false}
               />
             ))}
           </LineChart>
         </ResponsiveContainer>
+        {/* Legend - responsive grid */}
         {exerciseNames.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 pt-3 border-t border-slate-700/30">
             {exerciseNames.map((exercise, index) => (
               <div key={exercise} className="flex items-center gap-2">
                 <div
-                  className="w-3 h-3 rounded-full"
+                  className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                ></div>
-                <span className="text-sm text-gray-300 capitalize">{exercise}</span>
+                />
+                <span className="text-xs md:text-sm text-slate-400 capitalize truncate max-w-[120px]">
+                  {exercise}
+                </span>
               </div>
             ))}
           </div>
@@ -118,4 +123,4 @@ export function StrengthChart({ data }: StrengthChartProps) {
       </div>
     </div>
   );
-}
+});
