@@ -9,6 +9,7 @@ import prisma from "@/prisma/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { logger } from "@/lib/utils/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +64,7 @@ export async function GET(_request: NextRequest) {
       data: userProfile,
     });
   } catch (error) {
-    console.error("Error fetching fitness profile:", error);
+    logger.error("Error fetching fitness profile", { source: "api/users/profile" }, error as Error);
     return NextResponse.json({ error: "Failed to fetch fitness profile" }, { status: 500 });
   }
 }
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
       message: "Fitness profile updated successfully",
     });
   } catch (error) {
-    console.error("Error updating fitness profile:", error);
+    logger.error("Error updating fitness profile", { source: "api/users/profile" }, error as Error);
     return NextResponse.json({ error: "Failed to update fitness profile" }, { status: 500 });
   }
 }

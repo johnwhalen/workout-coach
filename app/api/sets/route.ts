@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { validateWorkoutOwnership } from "@/lib/db/lookups";
+import { logger } from "@/lib/utils/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ sets });
   } catch (error) {
-    console.error("Error fetching sets:", error);
+    logger.error("Error fetching sets", { source: "api/sets" }, error as Error);
     return NextResponse.json({ error: "Error fetching sets" }, { status: 500 });
   }
 }

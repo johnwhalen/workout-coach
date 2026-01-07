@@ -1,6 +1,7 @@
 import prisma from "@/prisma/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/utils/logger";
 
 // Force dynamic rendering - required for Clerk auth which reads headers
 export const dynamic = "force-dynamic";
@@ -87,7 +88,11 @@ export async function GET(_req: NextRequest) {
       totalWorkouts: workouts.length,
     });
   } catch (error) {
-    console.error("Error fetching workouts by date:", error);
+    logger.error(
+      "Error fetching workouts by date",
+      { source: "api/workouts/by-date" },
+      error as Error
+    );
     return NextResponse.json({ error: "Error fetching workouts by date" }, { status: 500 });
   }
 }

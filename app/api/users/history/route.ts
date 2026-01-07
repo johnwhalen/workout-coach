@@ -9,6 +9,7 @@ import prisma from "@/prisma/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { z } from "zod";
+import { logger } from "@/lib/utils/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export async function GET(_req: NextRequest) {
 
     return NextResponse.json({ chatHistory: resp.messages });
   } catch (error) {
-    console.error("Error fetching chat history:", error);
+    logger.error("Error fetching chat history", { source: "api/users/history" }, error as Error);
     return NextResponse.json({ error: "Failed to fetch chat history" }, { status: 500 });
   }
 }
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: "Chat history updated" });
   } catch (error) {
-    console.error("Error updating user history:", error);
+    logger.error("Error updating user history", { source: "api/users/history" }, error as Error);
     return NextResponse.json({ error: "Error updating user history" }, { status: 500 });
   }
 }

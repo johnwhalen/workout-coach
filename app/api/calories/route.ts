@@ -2,6 +2,7 @@ import prisma from "@/prisma/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { z } from "zod";
+import { logger } from "@/lib/utils/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,11 @@ export async function POST(req: NextRequest) {
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate ? new Date(startDate) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-    console.log("Date range:", { start, end });
+    logger.debug("Date range", {
+      source: "api/calories",
+      start: start.toISOString(),
+      end: end.toISOString(),
+    });
 
     // Get workouts with calorie data
     const workouts = await prisma.workout.findMany({
@@ -60,8 +65,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log("Found workouts:", workouts.length);
-    console.log("Workouts data:", JSON.stringify(workouts, null, 2));
+    logger.debug("Found workouts", { source: "api/calories", count: workouts.length });
 
     // Calculate total calories and aggregate data
     const calorieData = workouts.map((workout: (typeof workouts)[number]) => {
@@ -124,7 +128,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching calorie data:", error);
+    logger.error("Error fetching calorie data", { source: "api/calories" }, error as Error);
     return NextResponse.json({
       success: false,
       message: "Failed to fetch calorie data.",
