@@ -1,31 +1,27 @@
 import { test as base, expect, Page } from "@playwright/test";
+import { clerk, setupClerkTestingToken } from "@clerk/testing/playwright";
 
 /**
  * Authentication fixtures for Playwright E2E tests
  *
  * Provides utilities for testing both authenticated and unauthenticated flows.
- * For authenticated tests, you'll need to set up Clerk test mode or use
- * session storage.
+ * Uses @clerk/testing for seamless Clerk integration.
+ *
+ * @see https://clerk.com/docs/testing/playwright/overview
  */
 
 // Extended test fixture with auth utilities
 export const test = base.extend<{
-  authenticatedPage: Page;
+  clerkPage: Page;
 }>({
-  // Authenticated page fixture - skipped by default until Clerk test user is configured
-  authenticatedPage: async ({ page }, use) => {
-    // TODO: Set up Clerk test authentication
-    // Option 1: Use Clerk's testing tokens (recommended)
-    // Option 2: Use browser context with saved session
-    // Option 3: Programmatically sign in via Clerk's API
-
-    // For now, we'll mark this as a placeholder
-    // The test will be skipped if auth isn't configured
+  // Page with Clerk testing token injected
+  clerkPage: async ({ page }, use) => {
+    await setupClerkTestingToken({ page });
     await use(page);
   },
 });
 
-export { expect };
+export { expect, clerk };
 
 /**
  * Helper to check if we're in a CI environment

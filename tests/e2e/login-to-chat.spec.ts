@@ -10,8 +10,9 @@ import { waitForClerk } from "./fixtures/auth";
  * Tests cover:
  * 1. Login page loads and renders correctly
  * 2. Auth redirect works properly
- * 3. Post-login navigation to chat
- * 4. Chat page initializes correctly after auth
+ * 3. Login form interactions
+ *
+ * For post-login tests, see chat.authenticated.spec.ts
  */
 
 test.describe("Login to Chat Critical Path", () => {
@@ -172,81 +173,6 @@ test.describe("Login to Chat Critical Path", () => {
 
     // Should navigate to signup
     await expect(page).toHaveURL(/signup/, { timeout: 10000 });
-  });
-});
-
-/**
- * Post-Authentication Flow Tests
- *
- * These tests verify behavior after successful authentication.
- * They require a valid Clerk session to run.
- */
-test.describe.skip("Post-Login Chat Initialization", () => {
-  // These tests require authentication setup
-  // To enable: set up Clerk testing tokens or storageState
-
-  test("chat page loads after authentication", async ({ page }) => {
-    await page.goto("/chat");
-
-    // Should show chat interface (not redirect to login)
-    await expect(page).toHaveURL("/chat");
-
-    // Chat header should be visible
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
-  });
-
-  test("welcome message appears immediately", async ({ page }) => {
-    await page.goto("/chat");
-
-    // Welcome message should appear quickly
-    await expect(page.getByText(/Welcome to.*Golden Harbor/i)).toBeVisible({
-      timeout: 5000,
-    });
-  });
-
-  test("chat input is ready for use", async ({ page }) => {
-    await page.goto("/chat");
-
-    const input = page.getByPlaceholder("Type your message...");
-
-    // Input should be visible and enabled
-    await expect(input).toBeVisible();
-    await expect(input).toBeEnabled();
-
-    // Should be able to type
-    await input.fill("Test");
-    await expect(input).toHaveValue("Test");
-  });
-
-  test("user button is visible in chat header", async ({ page }) => {
-    await page.goto("/chat");
-
-    // Clerk user button should be visible
-    await expect(page.locator("[data-clerk-user-button]")).toBeVisible();
-  });
-
-  test("dashboard link works from chat", async ({ page }) => {
-    await page.goto("/chat");
-
-    // Click dashboard link
-    await page.getByRole("link", { name: /Dashboard/i }).click();
-
-    // Should navigate to metrics
-    await expect(page).toHaveURL(/metrics/);
-  });
-
-  test("chat maintains session on page refresh", async ({ page }) => {
-    await page.goto("/chat");
-
-    // Verify we're on chat
-    await expect(page).toHaveURL("/chat");
-
-    // Refresh the page
-    await page.reload();
-
-    // Should still be on chat (not redirected to login)
-    await expect(page).toHaveURL("/chat");
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
   });
 });
 

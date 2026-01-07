@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Force dynamic rendering - required for Clerk auth which reads headers
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const user = await currentUser();
 

@@ -16,7 +16,7 @@ const UpdateHistorySchema = z.object({
   messages: z.array(z.string()),
 });
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const user = await currentUser();
     if (!user) {

@@ -37,7 +37,7 @@ const FitnessProfileSchema = z.object({
   fitnessGoal: z.enum(["lose_weight", "gain_weight", "maintain_weight", "add_muscle"]),
 });
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const user = await currentUser();
 
   if (!user) {

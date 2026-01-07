@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import Link from "next/link";
-import toast from "react-hot-toast";
 
 import {
   ArrowRight,
@@ -19,40 +17,24 @@ import {
 import { GoldenHarborCrest } from "@/components/branding/GoldenHarborCrest";
 
 const Home = () => {
-  const [prompt, setPrompt] = useState("");
-  const [user, setUser] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const adduser = async () => {
+  const checkLoginStatus = async () => {
     try {
       const response = await fetch("/api/users", { method: "POST" });
       const data = await response.json();
       if (data?.data?.user_id) {
-        setUser(data.data.user_id);
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
       }
     } catch {
       setIsLoggedIn(false);
-      toast.error("");
     }
   };
-  const runprocessor = async () => {
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, user }),
-      });
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   useEffect(() => {
-    adduser();
+    checkLoginStatus();
   }, []);
   return (
     <div className="min-h-screen bg-slate-900 text-white overflow-hidden relative">

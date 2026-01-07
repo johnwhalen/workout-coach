@@ -45,7 +45,7 @@ export async function GET() {
 }
 
 // POST: Actually import the data
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const { userId } = await auth();
 

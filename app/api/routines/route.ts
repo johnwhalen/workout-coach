@@ -10,7 +10,7 @@ import { currentUser } from "@clerk/nextjs/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const user = await currentUser();
 

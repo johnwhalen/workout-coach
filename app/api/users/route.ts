@@ -11,7 +11,7 @@ import { logger } from "@/lib/utils/logger";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const user = await currentUser();
 
   if (!user) {

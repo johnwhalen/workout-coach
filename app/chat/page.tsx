@@ -161,6 +161,7 @@ I'm your personal AI training companion. I'll help you with progressive overload
     if (user) {
       fetchUserHistory();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Always show welcome message when messages array is empty (initial load)
@@ -168,6 +169,7 @@ I'm your personal AI training companion. I'll help you with progressive overload
     if (messages.length === 0) {
       setMessages([welcomeMessage]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const sendMessage = async () => {

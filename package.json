@@ -55,6 +55,7 @@
     ]
   },
   "devDependencies": {
+    "@clerk/testing": "^1.13.26",
     "@eslint/eslintrc": "^3.3.3",
     "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.9.1",
