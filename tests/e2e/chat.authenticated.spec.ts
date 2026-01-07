@@ -24,7 +24,7 @@ test.describe("Chat - Authenticated", () => {
     await expect(page).toHaveURL("/chat");
 
     // Chat header should be visible
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Golden Harbor", exact: true })).toBeVisible();
   });
 
   test("displays welcome message", async ({ page }) => {
@@ -91,7 +91,7 @@ test.describe("Chat - Authenticated", () => {
 
     // Should still be on chat (not redirected to login)
     await expect(page).toHaveURL("/chat");
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Golden Harbor", exact: true })).toBeVisible();
   });
 });
 

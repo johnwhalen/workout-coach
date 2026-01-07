@@ -48,7 +48,9 @@ setup("authenticate", async ({ page }) => {
   await expect(page).toHaveURL("/chat");
 
   // Wait for the page to fully load with user session
-  await expect(page.getByText(/Golden Harbor/i)).toBeVisible({ timeout: 10000 });
+  await expect(page.getByRole("heading", { name: "Golden Harbor", exact: true })).toBeVisible({
+    timeout: 10000,
+  });
 
   // Save the authenticated state for reuse
   await page.context().storageState({ path: authFile });

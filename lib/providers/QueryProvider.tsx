@@ -29,8 +29,10 @@ export function QueryProvider({ children }: QueryProviderProps) {
             refetchOnWindowFocus: false,
             // Retry failed requests up to 2 times
             retry: 2,
-            // Show stale data while refetching
-            refetchOnMount: "always",
+            // Only refetch on mount if data is stale (not "always")
+            refetchOnMount: true,
+            // Refetch when network reconnects
+            refetchOnReconnect: true,
           },
           mutations: {
             // Retry mutations once

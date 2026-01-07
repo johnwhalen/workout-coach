@@ -18,7 +18,7 @@ test.describe("Workout Logging Flow", () => {
     await expect(page).toHaveURL("/chat");
 
     // Wait for chat to load
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Golden Harbor", exact: true })).toBeVisible();
     const input = page.getByPlaceholder("Type your message...");
     await expect(input).toBeVisible();
 
@@ -44,7 +44,7 @@ test.describe("Workout Logging Flow", () => {
 
   test("can log multiple exercises in one session", async ({ page }) => {
     await page.goto("/chat");
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Golden Harbor", exact: true })).toBeVisible();
 
     const input = page.getByPlaceholder("Type your message...");
 
@@ -65,7 +65,7 @@ test.describe("Workout Logging Flow", () => {
 
   test("can create a routine and add exercises", async ({ page }) => {
     await page.goto("/chat");
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Golden Harbor", exact: true })).toBeVisible();
 
     const input = page.getByPlaceholder("Type your message...");
 
@@ -264,7 +264,7 @@ test.describe("Full Workflow Integration", () => {
 
     // 1. Start in chat
     await page.goto("/chat");
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Golden Harbor", exact: true })).toBeVisible();
 
     // 2. Log a workout
     const input = page.getByPlaceholder("Type your message...");
@@ -297,6 +297,6 @@ test.describe("Full Workflow Integration", () => {
     // 8. Go back to chat
     await page.getByRole("link", { name: /Chat/i }).click();
     await expect(page).toHaveURL(/chat/);
-    await expect(page.getByText("Golden Harbor")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Golden Harbor", exact: true })).toBeVisible();
   });
 });

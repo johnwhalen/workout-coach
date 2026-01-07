@@ -84,77 +84,24 @@ export function useSets(workoutId: string | null) {
   });
 }
 
+// Response type for the optimized by-date endpoint
+interface WorkoutsByDateResponse {
+  success: boolean;
+  workoutsByDate: WorkoutsByDate;
+  totalWorkoutDays: number;
+  totalWorkouts: number;
+}
+
 /**
  * Hook to fetch all workouts grouped by date
- * This is a complex query that fetches routines, workouts, and sets in parallel
+ * Uses the optimized /api/workouts/by-date endpoint that fetches all data in a single query
  */
 export function useWorkoutsByDate() {
   return useQuery({
     queryKey: workoutKeys.workoutsByDate(),
     queryFn: async (): Promise<WorkoutsByDate> => {
-      // First get all routines
-      const routinesResponse = await api.get<RoutinesResponse>("/api/routines");
-      const routines = routinesResponse.routines || [];
-
-      if (routines.length === 0) return {};
-
-      // Fetch all workouts for each routine in parallel
-      const workoutPromises = routines.map(async (routine) => {
-        try {
-          const response = await api.post<WorkoutsResponse>("/api/workouts", {
-            routineId: routine.routine_id,
-          });
-          return (response.workouts || []).map((workout) => ({
-            ...workout,
-            routine_name: routine.routine_name,
-          }));
-        } catch {
-          return [];
-        }
-      });
-
-      const workoutArrays = await Promise.all(workoutPromises);
-      const allWorkouts = workoutArrays.flat();
-
-      // Fetch sets for all workouts in parallel (batch into groups of 10)
-      const batchSize = 10;
-      const workoutsByDate: WorkoutsByDate = {};
-
-      for (let i = 0; i < allWorkouts.length; i += batchSize) {
-        const batch = allWorkouts.slice(i, i + batchSize);
-        const setsPromises = batch.map(async (workout) => {
-          try {
-            const response = await api.post<SetsResponse>("/api/sets", {
-              workoutId: workout.workout_id,
-            });
-            const sets = response.sets || [];
-            return {
-              workout,
-              sets,
-            };
-          } catch {
-            return { workout, sets: [] as Set[] };
-          }
-        });
-
-        const results = await Promise.all(setsPromises);
-
-        for (const { workout, sets } of results) {
-          const dateKey = new Date(workout.date).toISOString().split("T")[0];
-          if (!workoutsByDate[dateKey]) {
-            workoutsByDate[dateKey] = [];
-          }
-
-          workoutsByDate[dateKey].push({
-            ...workout,
-            sets_count: sets.length,
-            total_reps: sets.reduce((sum, set) => sum + set.set_reps, 0),
-            total_weight: sets.reduce((sum, set) => sum + set.set_weight * set.set_reps, 0),
-          } as WorkoutWithDetails);
-        }
-      }
-
-      return workoutsByDate;
+      const response = await api.get<WorkoutsByDateResponse>("/api/workouts/by-date");
+      return response.workoutsByDate || {};
     },
     staleTime: 2 * 60 * 1000, // Consider fresh for 2 minutes
   });

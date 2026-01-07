@@ -4,13 +4,47 @@
  * CalendarView Component
  *
  * Displays a calendar with workout indicators and selected date details.
+ * Optimized with React.memo for performance.
  */
 
+import { memo, useCallback } from "react";
 import { format } from "date-fns";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import type { WorkoutsByDate, WorkoutWithDetails } from "@/hooks/useWorkoutData";
 import { useMonthSummary } from "@/hooks/useAnalytics";
+
+// Static color constants - moved outside components to prevent recreation
+const STAT_COLORS = {
+  blue: {
+    bg: "from-blue-900/50 to-blue-800/30",
+    border: "border-blue-700/30",
+    text: "text-blue-400",
+    subtext: "text-blue-300",
+    hover: "hover:from-blue-800/60 hover:to-blue-700/40",
+  },
+  green: {
+    bg: "from-green-900/50 to-green-800/30",
+    border: "border-green-700/30",
+    text: "text-green-400",
+    subtext: "text-green-300",
+    hover: "hover:from-green-800/60 hover:to-green-700/40",
+  },
+  purple: {
+    bg: "from-purple-900/50 to-purple-800/30",
+    border: "border-purple-700/30",
+    text: "text-purple-400",
+    subtext: "text-purple-300",
+    hover: "hover:from-purple-800/60 hover:to-purple-700/40",
+  },
+  orange: {
+    bg: "from-orange-900/50 to-orange-800/30",
+    border: "border-orange-700/30",
+    text: "text-orange-400",
+    subtext: "text-orange-300",
+    hover: "hover:from-orange-800/60 hover:to-orange-700/40",
+  },
+} as const;
 
 interface CalendarViewProps {
   workoutsByDate: WorkoutsByDate;
@@ -19,7 +53,7 @@ interface CalendarViewProps {
   selectedDateWorkouts: WorkoutWithDetails[];
 }
 
-export function CalendarView({
+export const CalendarView = memo(function CalendarView({
   workoutsByDate,
   selectedDate,
   onDateSelect,
@@ -27,16 +61,22 @@ export function CalendarView({
 }: CalendarViewProps) {
   const monthSummary = useMonthSummary(workoutsByDate);
 
-  const hasWorkoutOnDate = (date: Date): boolean => {
-    const dateKey = date.toISOString().split("T")[0];
-    return workoutsByDate[dateKey] && workoutsByDate[dateKey].length > 0;
-  };
+  const hasWorkoutOnDate = useCallback(
+    (date: Date): boolean => {
+      const dateKey = date.toISOString().split("T")[0];
+      return workoutsByDate[dateKey] && workoutsByDate[dateKey].length > 0;
+    },
+    [workoutsByDate]
+  );
 
-  const handleDateChange = (value: unknown) => {
-    if (value instanceof Date) {
-      onDateSelect(value);
-    }
-  };
+  const handleDateChange = useCallback(
+    (value: unknown) => {
+      if (value instanceof Date) {
+        onDateSelect(value);
+      }
+    },
+    [onDateSelect]
+  );
 
   return (
     <div className="space-y-6">
@@ -122,9 +162,9 @@ export function CalendarView({
       <MonthlySummary summary={monthSummary} />
     </div>
   );
-}
+});
 
-function WorkoutCard({ workout }: { workout: WorkoutWithDetails }) {
+const WorkoutCard = memo(function WorkoutCard({ workout }: { workout: WorkoutWithDetails }) {
   return (
     <div className="bg-gradient-to-r from-slate-700/50 to-slate-600/30 rounded-xl p-4 border border-slate-600/50 hover:border-blue-400/50 transition-all duration-200">
       <div className="flex justify-between items-start mb-3">
@@ -187,9 +227,9 @@ function WorkoutCard({ workout }: { workout: WorkoutWithDetails }) {
       )}
     </div>
   );
-}
+});
 
-function EmptyDateState() {
+const EmptyDateState = memo(function EmptyDateState() {
   return (
     <div className="text-center py-8">
       <svg
@@ -209,7 +249,7 @@ function EmptyDateState() {
       <p className="text-gray-500 text-sm mt-1">Select a date with workouts to see details</p>
     </div>
   );
-}
+});
 
 interface MonthlySummaryProps {
   summary: {
@@ -220,7 +260,7 @@ interface MonthlySummaryProps {
   };
 }
 
-function MonthlySummary({ summary }: MonthlySummaryProps) {
+const MonthlySummary = memo(function MonthlySummary({ summary }: MonthlySummaryProps) {
   return (
     <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 backdrop-blur-sm">
       <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
@@ -267,7 +307,7 @@ function MonthlySummary({ summary }: MonthlySummaryProps) {
       </div>
     </div>
   );
-}
+});
 
 interface StatCardProps {
   value: number;
@@ -276,39 +316,8 @@ interface StatCardProps {
   colorClass: "blue" | "green" | "purple" | "orange";
 }
 
-function StatCard({ value, label, sublabel, colorClass }: StatCardProps) {
-  const colors = {
-    blue: {
-      bg: "from-blue-900/50 to-blue-800/30",
-      border: "border-blue-700/30",
-      text: "text-blue-400",
-      subtext: "text-blue-300",
-      hover: "hover:from-blue-800/60 hover:to-blue-700/40",
-    },
-    green: {
-      bg: "from-green-900/50 to-green-800/30",
-      border: "border-green-700/30",
-      text: "text-green-400",
-      subtext: "text-green-300",
-      hover: "hover:from-green-800/60 hover:to-green-700/40",
-    },
-    purple: {
-      bg: "from-purple-900/50 to-purple-800/30",
-      border: "border-purple-700/30",
-      text: "text-purple-400",
-      subtext: "text-purple-300",
-      hover: "hover:from-purple-800/60 hover:to-purple-700/40",
-    },
-    orange: {
-      bg: "from-orange-900/50 to-orange-800/30",
-      border: "border-orange-700/30",
-      text: "text-orange-400",
-      subtext: "text-orange-300",
-      hover: "hover:from-orange-800/60 hover:to-orange-700/40",
-    },
-  };
-
-  const c = colors[colorClass];
+const StatCard = memo(function StatCard({ value, label, sublabel, colorClass }: StatCardProps) {
+  const c = STAT_COLORS[colorClass];
 
   return (
     <div
@@ -319,4 +328,4 @@ function StatCard({ value, label, sublabel, colorClass }: StatCardProps) {
       <div className={`text-xs ${c.subtext} mt-1`}>{sublabel}</div>
     </div>
   );
-}
+});

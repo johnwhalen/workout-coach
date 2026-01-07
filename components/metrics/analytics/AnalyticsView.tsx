@@ -4,11 +4,21 @@
  * AnalyticsView Component
  *
  * Main analytics dashboard with summary stats, streak chart, and strength progression.
+ * Swiss minimalist design with mobile-first responsiveness.
  */
 
+import { memo, useMemo } from "react";
 import type { AnalyticsSummary, StreakDay, WeeklyStrength } from "@/hooks/useAnalytics";
 import { StreakChart } from "./StreakChart";
 import { StrengthChart } from "./StrengthChart";
+
+// Swiss minimalist stat colors - subtle, professional
+const STAT_BOX_STYLES = {
+  default: "bg-navy-700/60 border-slate-700/30",
+  gold: "text-gold",
+  white: "text-white",
+  muted: "text-slate-400",
+} as const;
 
 interface AnalyticsViewProps {
   summary: AnalyticsSummary | null;
@@ -17,12 +27,27 @@ interface AnalyticsViewProps {
   isLoading?: boolean;
 }
 
-export function AnalyticsView({
+export const AnalyticsView = memo(function AnalyticsView({
   summary,
   streakData,
   strengthData,
   isLoading,
 }: AnalyticsViewProps) {
+  // Memoize weekly summary calculation
+  const weeklySummary = useMemo(() => {
+    if (!streakData.length) return null;
+
+    const thisWeek = streakData.slice(-7);
+    const workoutsThisWeek = thisWeek.filter((day) => day.value > 0).length;
+    const totalIntensity = thisWeek.reduce((sum, day) => sum + day.value, 0);
+
+    return {
+      workoutsThisWeek,
+      avgIntensity: (totalIntensity / 7).toFixed(1),
+      completion: ((workoutsThisWeek / 5) * 100).toFixed(0),
+    };
+  }, [streakData]);
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -56,22 +81,6 @@ export function AnalyticsView({
     );
   }
 
-  const getWeeklySummary = () => {
-    if (!streakData.length) return null;
-
-    const thisWeek = streakData.slice(-7);
-    const workoutsThisWeek = thisWeek.filter((day) => day.value > 0).length;
-    const totalIntensity = thisWeek.reduce((sum, day) => sum + day.value, 0);
-
-    return {
-      workoutsThisWeek,
-      avgIntensity: (totalIntensity / 7).toFixed(1),
-      completion: ((workoutsThisWeek / 5) * 100).toFixed(0),
-    };
-  };
-
-  const weeklySummary = getWeeklySummary();
-
   return (
     <div className="space-y-6">
       <AnalyticsSummaryCard data={summary} />
@@ -82,13 +91,15 @@ export function AnalyticsView({
       <StrengthChart data={strengthData} />
     </div>
   );
-}
+});
 
 interface AnalyticsSummaryCardProps {
   data: AnalyticsSummary;
 }
 
-function AnalyticsSummaryCard({ data }: AnalyticsSummaryCardProps) {
+const AnalyticsSummaryCard = memo(function AnalyticsSummaryCard({
+  data,
+}: AnalyticsSummaryCardProps) {
   return (
     <div>
       <h3 className="text-white font-semibold mb-3 font-bricolage-grotesque">Fitness Analytics</h3>
@@ -100,7 +111,7 @@ function AnalyticsSummaryCard({ data }: AnalyticsSummaryCardProps) {
       </div>
     </div>
   );
-}
+});
 
 interface StatBoxProps {
   value: number | string;
@@ -108,31 +119,8 @@ interface StatBoxProps {
   colorClass: "blue" | "green" | "yellow" | "purple";
 }
 
-function StatBox({ value, label, colorClass }: StatBoxProps) {
-  const colors = {
-    blue: {
-      bg: "from-blue-900/80 to-blue-800/60",
-      border: "border-blue-700/30",
-      text: "text-blue-300",
-    },
-    green: {
-      bg: "from-green-900/80 to-green-800/60",
-      border: "border-green-700/30",
-      text: "text-green-300",
-    },
-    yellow: {
-      bg: "from-yellow-900/80 to-yellow-800/60",
-      border: "border-yellow-700/30",
-      text: "text-yellow-300",
-    },
-    purple: {
-      bg: "from-purple-900/80 to-purple-800/60",
-      border: "border-purple-700/30",
-      text: "text-purple-300",
-    },
-  };
-
-  const c = colors[colorClass];
+const StatBox = memo(function StatBox({ value, label, colorClass }: StatBoxProps) {
+  const c = STAT_BOX_COLORS[colorClass];
 
   return (
     <div
@@ -142,7 +130,7 @@ function StatBox({ value, label, colorClass }: StatBoxProps) {
       <p className="text-gray-300 text-sm font-medium">{label}</p>
     </div>
   );
-}
+});
 
 interface WeeklyProgressCardProps {
   summary: {
@@ -152,7 +140,7 @@ interface WeeklyProgressCardProps {
   };
 }
 
-function WeeklyProgressCard({ summary }: WeeklyProgressCardProps) {
+const WeeklyProgressCard = memo(function WeeklyProgressCard({ summary }: WeeklyProgressCardProps) {
   return (
     <div>
       <h3 className="text-white font-semibold mb-3 font-bricolage-grotesque">
@@ -182,4 +170,4 @@ function WeeklyProgressCard({ summary }: WeeklyProgressCardProps) {
       </div>
     </div>
   );
-}
+});

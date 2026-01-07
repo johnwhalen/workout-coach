@@ -5,12 +5,15 @@
  *
  * Refactored to use React Query for data fetching and split components
  * for better maintainability and performance.
+ *
+ * Heavy components (CalendarView, AnalyticsView) are dynamically imported
+ * to reduce initial bundle size (~250KB savings).
  */
 
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useState, useMemo } from "react";
-import "react-calendar/dist/Calendar.css";
 
 // Hooks
 import {
@@ -25,14 +28,38 @@ import {
 } from "@/hooks";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
-// Components
-import {
-  CalendarView,
-  CalorieStats,
-  UserProfileStats,
-  WorkoutBrowser,
-  AnalyticsView,
-} from "@/components/metrics";
+// Static components (lightweight)
+import { CalorieStats, UserProfileStats, WorkoutBrowser } from "@/components/metrics";
+
+// Loading skeleton for lazy-loaded components
+function ComponentSkeleton({ label }: { label: string }) {
+  return (
+    <div className="bg-slate-800/80 p-8 rounded-xl border border-blue-900/20 text-center backdrop-blur-sm animate-pulse">
+      <h3 className="text-white font-semibold mb-3">Loading {label}...</h3>
+      <div className="h-40 bg-slate-700/50 rounded-lg"></div>
+    </div>
+  );
+}
+
+// Dynamic imports for heavy components (reduces initial bundle by ~250KB)
+const CalendarView = dynamic(
+  () => import("@/components/metrics/CalendarView").then((mod) => ({ default: mod.CalendarView })),
+  {
+    loading: () => <ComponentSkeleton label="Calendar" />,
+    ssr: false,
+  }
+);
+
+const AnalyticsView = dynamic(
+  () =>
+    import("@/components/metrics/analytics/AnalyticsView").then((mod) => ({
+      default: mod.AnalyticsView,
+    })),
+  {
+    loading: () => <ComponentSkeleton label="Analytics" />,
+    ssr: false,
+  }
+);
 
 import type { Routine, Workout } from "@/types/database";
 

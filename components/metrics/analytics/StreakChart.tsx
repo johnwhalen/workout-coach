@@ -4,15 +4,46 @@
  * StreakChart Component
  *
  * GitHub-style activity chart showing workout frequency.
+ * Optimized with React.memo for performance.
  */
 
+import { memo, useMemo } from "react";
 import type { StreakDay } from "@/hooks/useAnalytics";
+
+// Static constants - moved outside component to prevent recreation
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// Move getIntensityColor outside component to prevent recreation on each render
+const getIntensityColor = (value: number): string => {
+  if (value === 0) return "bg-slate-800 hover:bg-slate-700";
+  if (value === 1) return "bg-green-900 hover:bg-green-800";
+  if (value === 2) return "bg-green-700 hover:bg-green-600";
+  if (value === 3) return "bg-green-500 hover:bg-green-400";
+  return "bg-green-400 hover:bg-green-300";
+};
 
 interface StreakChartProps {
   data: StreakDay[];
 }
 
-export function StreakChart({ data }: StreakChartProps) {
+export const StreakChart = memo(function StreakChart({ data }: StreakChartProps) {
+  // Memoize expensive calculations
+  const { weeks, maxWorkouts } = useMemo(() => {
+    if (!data || data.length === 0) {
+      return { weeks: [], maxWorkouts: 0 };
+    }
+
+    const weeksArr: StreakDay[][] = [];
+    for (let i = 0; i < data.length; i += 7) {
+      weeksArr.push(data.slice(i, i + 7));
+    }
+
+    return {
+      weeks: weeksArr,
+      maxWorkouts: Math.max(...data.map((d) => d.value), 1),
+    };
+  }, [data]);
+
   if (!data || data.length === 0) {
     return (
       <div>
@@ -29,22 +60,6 @@ export function StreakChart({ data }: StreakChartProps) {
     );
   }
 
-  const weeks: StreakDay[][] = [];
-  for (let i = 0; i < data.length; i += 7) {
-    weeks.push(data.slice(i, i + 7));
-  }
-
-  const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const maxWorkouts = Math.max(...data.map((d) => d.value), 1);
-
-  const getIntensityColor = (value: number) => {
-    if (value === 0) return "bg-slate-800 hover:bg-slate-700";
-    if (value === 1) return "bg-green-900 hover:bg-green-800";
-    if (value === 2) return "bg-green-700 hover:bg-green-600";
-    if (value === 3) return "bg-green-500 hover:bg-green-400";
-    return "bg-green-400 hover:bg-green-300";
-  };
-
   return (
     <div>
       <h3 className="text-white font-semibold mb-3 font-bricolage-grotesque">Activity Streak</h3>
@@ -52,7 +67,7 @@ export function StreakChart({ data }: StreakChartProps) {
         <div className="flex gap-1 mb-4 overflow-x-auto">
           <div className="flex flex-col gap-1 mr-2">
             <div className="w-3 h-3"></div> {/* Spacer for alignment */}
-            {dayLabels.map((day, index) => (
+            {DAY_LABELS.map((day, index) => (
               <div key={index} className="w-3 h-3 flex items-center justify-center">
                 <span className="text-xs text-gray-400 -rotate-90 text-center leading-none">
                   {day[0]}
@@ -95,4 +110,4 @@ export function StreakChart({ data }: StreakChartProps) {
       </div>
     </div>
   );
-}
+});
