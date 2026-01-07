@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Set {
+  set_id          String   @id @unique @default(uuid())
+  set_weight      Float
+  set_reps        Int
+  workout_id      String
+  date            DateTime @default(now())
+  calories_burned Float?
+  workout         Workout  @relation(fields: [workout_id], references: [workout_id])
+}
+
+model Workout {
+  workout_id            String   @id @unique @default(uuid())
+  workout_name          String
+  routine_id            String
+  date                  DateTime @default(now())
+  duration_minutes      Int?
+  notes                 String?
+  total_calories_burned Float?
+  workout_type          String?
+  Set                   Set[]
+  routine               Routine  @relation(fields: [routine_id], references: [routine_id])
+}
+
+model Routine {
+  routine_id   String    @id @unique @default(uuid())
+  routine_name String
+  user_id      String
+  date_created DateTime  @default(now())
+  user         User      @relation(fields: [user_id], references: [user_id])
+  Workout      Workout[]
+}
+
+model User {
+  user_id         String           @id @unique
+  password        String           @default("")
+  email           String
+  created_at      DateTime         @default(now())
+  name            String?
+  // Fitness Profile Fields
+  current_weight  Float?           // Weight in kg
+  height          Float?           // Height in cm
+  goal_weight     Float?           // Goal weight in kg
+  fitness_goal    String?          // "lose_weight", "gain_weight", "maintain_weight", "add_muscle"
+  profile_complete Boolean         @default(false) // Whether the user has completed their fitness profile
+  Routine         Routine[]
+  UserChatHistory UserChatHistory?
+}
+
+model UserChatHistory {
+  userId   String   @id
+  messages String[]
+  user     User     @relation(fields: [userId], references: [user_id])
+}

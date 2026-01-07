@@ -1,0 +1,22 @@
+-- AlterTable
+ALTER TABLE "Routine" ADD COLUMN     "date_created" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Set" ADD COLUMN     "calories_burned" DOUBLE PRECISION,
+ALTER COLUMN "date" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "current_weight" DOUBLE PRECISION,
+ADD COLUMN     "fitness_goal" TEXT,
+ADD COLUMN     "goal_weight" DOUBLE PRECISION,
+ADD COLUMN     "height" DOUBLE PRECISION,
+ADD COLUMN     "name" TEXT,
+ADD COLUMN     "profile_complete" BOOLEAN NOT NULL DEFAULT false;
+
+-- AlterTable
+ALTER TABLE "Workout" ADD COLUMN     "duration_minutes" INTEGER,
+ADD COLUMN     "notes" TEXT,
+ADD COLUMN     "total_calories_burned" DOUBLE PRECISION,
+ADD COLUMN     "workout_type" TEXT,
+ALTER COLUMN "date" SET DEFAULT CURRENT_TIMESTAMP;
