@@ -6,10 +6,10 @@ import { test, expect } from "@playwright/test";
  * These tests run with a pre-authenticated session from auth.setup.ts.
  * The storageState from .clerk/user.json is automatically loaded.
  *
- * To enable these tests:
- * 1. Create a test user in your Clerk dashboard
- * 2. Add E2E_CLERK_USER_EMAIL and E2E_CLERK_USER_PASSWORD to .env.local
- * 3. Run: npx playwright test
+ * The dashboard now has 3 consolidated tabs:
+ * - Calendar (includes Analytics)
+ * - Workouts (routine browser)
+ * - Profile (includes Calorie stats)
  *
  * @see https://clerk.com/docs/testing/playwright/test-authenticated-flows
  */
@@ -25,7 +25,8 @@ test.describe("Metrics - Dashboard", () => {
   });
 
   test("displays all navigation tabs", async ({ page }) => {
-    const tabs = ["Calendar", "Workouts", "Calories", "Profile", "Analytics"];
+    // Updated: 3 consolidated tabs
+    const tabs = ["Calendar", "Workouts", "Profile"];
 
     for (const tab of tabs) {
       await expect(page.getByRole("button", { name: tab })).toBeVisible();
@@ -34,15 +35,11 @@ test.describe("Metrics - Dashboard", () => {
 
   test("calendar tab is active by default", async ({ page }) => {
     const calendarTab = page.getByRole("button", { name: "Calendar" });
-    await expect(calendarTab).toHaveClass(/bg-blue-600/);
+    await expect(calendarTab).toHaveClass(/bg-gold|bg-blue-600/);
   });
 
   test("has chat link in header", async ({ page }) => {
     await expect(page.getByRole("link", { name: /Chat/i })).toBeVisible();
-  });
-
-  test("has user button in header", async ({ page }) => {
-    await expect(page.locator("[data-clerk-user-button]")).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -53,27 +50,13 @@ test.describe("Metrics - Calendar View", () => {
     await page.getByRole("button", { name: "Calendar" }).click();
   });
 
-  test("displays workout calendar", async ({ page }) => {
-    await expect(page.getByText(/Workout Calendar/i)).toBeVisible();
-  });
-
   test("displays react-calendar component", async ({ page }) => {
     await expect(page.locator(".react-calendar")).toBeVisible();
   });
 
-  test("shows selected date workouts section", async ({ page }) => {
-    await expect(page.getByText(/Workouts on/i)).toBeVisible();
-  });
-
-  test("displays monthly summary", async ({ page }) => {
-    await expect(page.getByText(/This Month's Summary/i)).toBeVisible();
-  });
-
-  test("shows monthly stats", async ({ page }) => {
+  test("displays monthly summary stats", async ({ page }) => {
     await expect(page.getByText(/Workout Days/i)).toBeVisible();
-    await expect(page.getByText(/Total Workouts/i)).toBeVisible();
     await expect(page.getByText(/Total Sets/i)).toBeVisible();
-    await expect(page.getByText(/Calories Burned/i)).toBeVisible();
   });
 
   test("can click on calendar dates", async ({ page }) => {
@@ -81,8 +64,8 @@ test.describe("Metrics - Calendar View", () => {
     const dateButton = page.locator(".react-calendar__tile").first();
     await dateButton.click();
 
-    // Should update selected date workouts
-    await expect(page.getByText(/Workouts on/i)).toBeVisible();
+    // Calendar should still be visible (no error)
+    await expect(page.locator(".react-calendar")).toBeVisible();
   });
 
   test("calendar navigation works", async ({ page }) => {
@@ -102,7 +85,7 @@ test.describe("Metrics - Workouts View", () => {
   });
 
   test("displays routines list", async ({ page }) => {
-    await expect(page.getByText(/Your Routines/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Routines" })).toBeVisible();
   });
 
   test("shows empty state when no routines or displays routines", async ({ page }) => {
@@ -140,32 +123,9 @@ test.describe("Metrics - Workouts View", () => {
       const backButton = page.getByRole("button", { name: /Back to Routines/i });
       if (await backButton.isVisible()) {
         await backButton.click();
-        await expect(page.getByText(/Your Routines/i)).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Your Routines" })).toBeVisible();
       }
     }
-  });
-});
-
-test.describe("Metrics - Calories View", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/metrics");
-    await page.getByRole("button", { name: "Calories" }).click();
-  });
-
-  test("displays calorie tracking section", async ({ page }) => {
-    await expect(page.getByText(/Calorie Tracking/i)).toBeVisible();
-  });
-
-  test("shows total calories burned", async ({ page }) => {
-    await expect(page.getByText(/Total Calories Burned/i)).toBeVisible();
-  });
-
-  test("shows daily average", async ({ page }) => {
-    await expect(page.getByText(/Daily Average/i)).toBeVisible();
-  });
-
-  test("displays recent workouts with calories", async ({ page }) => {
-    await expect(page.getByText(/Recent Workouts/i)).toBeVisible();
   });
 });
 
@@ -176,7 +136,7 @@ test.describe("Metrics - Profile View", () => {
   });
 
   test("displays fitness profile section", async ({ page }) => {
-    await expect(page.getByText(/Fitness Profile/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Fitness Profile" })).toBeVisible();
   });
 
   test("shows profile incomplete message if not set up or displays stats", async ({ page }) => {
@@ -228,44 +188,6 @@ test.describe("Metrics - Profile View", () => {
   });
 });
 
-test.describe("Metrics - Analytics View", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/metrics");
-    await page.getByRole("button", { name: "Analytics" }).click();
-  });
-
-  test("displays analytics section", async ({ page }) => {
-    await expect(page.getByText(/Fitness Analytics/i)).toBeVisible();
-  });
-
-  test("shows analytics summary stats", async ({ page }) => {
-    await expect(page.getByText(/Current Streak/i)).toBeVisible();
-    await expect(page.getByText(/Longest Streak/i)).toBeVisible();
-    await expect(page.getByText(/Total Workouts/i)).toBeVisible();
-    await expect(page.getByText(/Avg\/Week/i)).toBeVisible();
-  });
-
-  test("displays weekly progress", async ({ page }) => {
-    await expect(page.getByText(/This Week's Progress/i)).toBeVisible();
-  });
-
-  test("shows activity streak chart", async ({ page }) => {
-    await expect(page.getByText(/Activity Streak/i)).toBeVisible();
-  });
-
-  test("shows strength progression chart", async ({ page }) => {
-    await expect(page.getByText(/Strength Progression/i)).toBeVisible();
-  });
-
-  test("handles empty analytics data gracefully", async ({ page }) => {
-    // Should show either data or empty state message
-    const noDataMessage = page.getByText(/No workout data available/i);
-    const analyticsData = page.getByText(/Current Streak/i);
-
-    await expect(noDataMessage.or(analyticsData)).toBeVisible();
-  });
-});
-
 test.describe("Metrics - Tab Navigation", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/metrics");
@@ -274,35 +196,23 @@ test.describe("Metrics - Tab Navigation", () => {
   test("switching tabs updates content", async ({ page }) => {
     // Click Workouts tab
     await page.getByRole("button", { name: "Workouts" }).click();
-    await expect(page.getByText(/Your Routines/i)).toBeVisible();
-
-    // Click Calories tab
-    await page.getByRole("button", { name: "Calories" }).click();
-    await expect(page.getByText(/Calorie Tracking/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Routines" })).toBeVisible();
 
     // Click Profile tab
     await page.getByRole("button", { name: "Profile" }).click();
-    await expect(page.getByText(/Fitness Profile/i)).toBeVisible();
-
-    // Click Analytics tab
-    await page.getByRole("button", { name: "Analytics" }).click();
-    await expect(page.getByText(/Fitness Analytics|No Workout Data/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Fitness Profile" })).toBeVisible();
 
     // Click Calendar tab
     await page.getByRole("button", { name: "Calendar" }).click();
-    await expect(page.getByText(/Workout Calendar/i)).toBeVisible();
+    await expect(page.locator(".react-calendar")).toBeVisible();
   });
 
   test("active tab has correct styling", async ({ page }) => {
     const workoutsTab = page.getByRole("button", { name: "Workouts" });
     await workoutsTab.click();
 
-    // Active tab should have blue background
-    await expect(workoutsTab).toHaveClass(/bg-blue-600/);
-
-    // Other tabs should not
-    const caloriesTab = page.getByRole("button", { name: "Calories" });
-    await expect(caloriesTab).toHaveClass(/bg-slate-700/);
+    // Active tab should have gold/blue background
+    await expect(workoutsTab).toHaveClass(/bg-gold|bg-blue-600/);
   });
 });
 

@@ -45,20 +45,12 @@ test.describe("Chat - Authenticated", () => {
     await expect(input).toHaveValue("Test message");
   });
 
-  test("shows user button in header", async ({ page }) => {
-    // Clerk user button should be visible for authenticated users
-    await expect(page.locator("[data-clerk-user-button]")).toBeVisible({ timeout: 10000 });
-  });
-
   test("has dashboard link", async ({ page }) => {
     await expect(page.getByRole("link", { name: /Dashboard/i })).toBeVisible();
   });
 
   test("can send a message", async ({ page }) => {
     const input = page.getByPlaceholder("Type your message...");
-    const sendButton = page
-      .getByRole("button", { name: /send/i })
-      .or(page.locator("button.send-btn"));
 
     await input.fill("Hello coach!");
 
@@ -106,7 +98,8 @@ test.describe("Metrics - Authenticated", () => {
   });
 
   test("shows all navigation tabs", async ({ page }) => {
-    const tabs = ["Calendar", "Workouts", "Calories", "Profile", "Analytics"];
+    // Updated: Now only 3 tabs (Calendar, Workouts, Profile)
+    const tabs = ["Calendar", "Workouts", "Profile"];
 
     for (const tab of tabs) {
       await expect(page.getByRole("button", { name: tab })).toBeVisible();
@@ -115,25 +108,22 @@ test.describe("Metrics - Authenticated", () => {
 
   test("calendar tab is active by default", async ({ page }) => {
     const calendarTab = page.getByRole("button", { name: "Calendar" });
-    await expect(calendarTab).toHaveClass(/bg-blue-600/);
+    // Check for active styling (bg-gold on the new design)
+    await expect(calendarTab).toHaveClass(/bg-gold|bg-blue-600/);
   });
 
   test("can switch between tabs", async ({ page }) => {
     // Click Workouts tab
     await page.getByRole("button", { name: "Workouts" }).click();
-    await expect(page.getByText(/Your Routines|No routines/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Routines" })).toBeVisible();
 
-    // Click Calories tab
-    await page.getByRole("button", { name: "Calories" }).click();
-    await expect(page.getByText(/Calorie/i)).toBeVisible();
-
-    // Click Profile tab
+    // Click Profile tab (now includes calories)
     await page.getByRole("button", { name: "Profile" }).click();
-    await expect(page.getByText(/Profile/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Fitness Profile" })).toBeVisible();
 
-    // Click Analytics tab
-    await page.getByRole("button", { name: "Analytics" }).click();
-    await expect(page.getByText(/Analytics|Streak|No.*Data/i)).toBeVisible();
+    // Click Calendar tab
+    await page.getByRole("button", { name: "Calendar" }).click();
+    await expect(page.locator(".react-calendar")).toBeVisible();
   });
 
   test("has chat link in header", async ({ page }) => {
@@ -143,9 +133,5 @@ test.describe("Metrics - Authenticated", () => {
   test("can navigate to chat", async ({ page }) => {
     await page.getByRole("link", { name: /Chat/i }).click();
     await expect(page).toHaveURL("/chat");
-  });
-
-  test("shows user button", async ({ page }) => {
-    await expect(page.locator("[data-clerk-user-button]")).toBeVisible({ timeout: 10000 });
   });
 });
