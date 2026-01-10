@@ -48,7 +48,7 @@ Starting at ~50% of your last recorded weights from Workouts.xlsx.
 
 Progress visualization will be available in the app at `/metrics`
 
-### Milestones to Achieve:
+### Milestones to Achieve
 
 - [ ] Complete first workout back
 - [ ] Establish baseline weights for all exercises
@@ -57,6 +57,7 @@ Progress visualization will be available in the app at `/metrics`
 - [ ] Bench Press: 25 lbs x 10 reps
 - [ ] Goblet Squat: 35 lbs x 10 reps
 - [ ] Romanian Deadlift: 55 lbs x 10 reps
+- [ ] Change weights and measures to feet and lbs (currently kg/cm in schema)
 
 ---
 

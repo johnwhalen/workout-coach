@@ -32,15 +32,17 @@ npx vercel --prod        # Deploy to production
 
 ### Code Quality Commands
 
-| Command                | Description                      |
-| ---------------------- | -------------------------------- |
-| `npm run lint`         | Check for lint errors            |
-| `npm run lint:fix`     | Auto-fix lint errors             |
-| `npm run format`       | Format all code with Prettier    |
-| `npm run format:check` | Check formatting without changes |
-| `npm run typecheck`    | Run TypeScript type checking     |
-| `npm run preflight`    | Full check: lint + types + build |
-| `npm run test:manual`  | Run comprehensive manual tests   |
+| Command                    | Description                      |
+| -------------------------- | -------------------------------- |
+| `npm run lint`             | Check for lint errors            |
+| `npm run lint:fix`         | Auto-fix lint errors             |
+| `npm run format`           | Format all code with Prettier    |
+| `npm run format:check`     | Check formatting without changes |
+| `npm run typecheck`        | Run TypeScript type checking     |
+| `npm run preflight`        | Full check: lint + types + build |
+| `npm run test:manual`      | Run comprehensive manual tests   |
+| `npx playwright test`      | Run E2E tests                    |
+| `npx playwright test --ui` | Run E2E tests with UI            |
 
 ### CI/CD
 
@@ -121,6 +123,14 @@ scripts/
 │   └── fix-vercel-env.sh
 └── test/                  # Test scripts
     └── test-app.mjs
+
+tests/
+└── e2e/                   # Playwright E2E tests
+    ├── *.spec.ts          # Unauthenticated tests
+    ├── *.authenticated.spec.ts  # Authenticated tests
+    ├── auth.setup.ts      # Clerk auth setup
+    ├── global.setup.ts    # Clerk testing tokens
+    └── fixtures/          # Test helpers and data
 ```
 
 ## API Endpoints

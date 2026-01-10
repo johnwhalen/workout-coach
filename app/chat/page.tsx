@@ -1,18 +1,26 @@
 "use client";
-import FitnessProfileModal from "@/components/modals/FitnessProfileModal";
-import { UserButton } from "@clerk/nextjs";
-import { Button } from "@mantine/core";
-import Link from "next/link";
+
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import FitnessProfileModal from "@/components/modals/FitnessProfileModal";
+import { ChatHeader, ChatInput, ChatMessages } from "@/components/chat";
 
 interface ChatMessage {
   id: number;
   text: string;
   isUser: boolean;
 }
+
+// Welcome message - concise (Swiss minimalism)
+const welcomeMessage: ChatMessage = {
+  id: -1,
+  text: `# Welcome to Golden Harbor
+
+I'm your AI training coach. Log workouts naturally, get progressive overload recommendations, and track your strength gains.
+
+**Try:** "I did 3 sets of bench at 25 lbs" or "What should I lift today?"`,
+  isUser: false,
+};
 
 export default function ChatBox() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -22,17 +30,7 @@ export default function ChatBox() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState("");
   const [showFitnessModal, setShowFitnessModal] = useState(false);
-
-  // Welcome message - concise (Swiss minimalism)
-  const welcomeMessage: ChatMessage = {
-    id: -1,
-    text: `# Welcome to Golden Harbor
-
-I'm your AI training coach. Log workouts naturally, get progressive overload recommendations, and track your strength gains.
-
-**Try:** "I did 3 sets of bench at 25 lbs" or "What should I lift today?"`,
-    isUser: false,
-  };
+  const [lastMsgId, setLastMsgId] = useState<number | null>(null);
 
   const adduser = async () => {
     try {
@@ -132,25 +130,6 @@ I'm your AI training coach. Log workouts naturally, get progressive overload rec
     }
   };
 
-  useEffect(() => {
-    adduser();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchUserHistory();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  // Always show welcome message when messages array is empty (initial load)
-  useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([welcomeMessage]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
@@ -197,11 +176,11 @@ I'm your AI training coach. Log workouts naturally, get progressive overload rec
         buffer += decoder.decode(value, { stream: true });
 
         // Process complete SSE messages (separated by double newlines)
-        const messages = buffer.split("\n\n");
+        const sseMessages = buffer.split("\n\n");
         // Keep the last incomplete message in the buffer
-        buffer = messages.pop() || "";
+        buffer = sseMessages.pop() || "";
 
-        for (const message of messages) {
+        for (const message of sseMessages) {
           const lines = message.split("\n");
           for (const line of lines) {
             if (line.startsWith("data: ")) {
@@ -371,14 +350,35 @@ I'm your AI training coach. Log workouts naturally, get progressive overload rec
     }
   };
 
-  const [lastMsgId, setLastMsgId] = useState<number | null>(null);
+  // Initialize user on mount
+  useEffect(() => {
+    adduser();
+  }, []);
 
+  // Fetch history when user is set
+  useEffect(() => {
+    if (user) {
+      fetchUserHistory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // Set welcome message on initial load
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([welcomeMessage]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Track last message ID for animation
   useEffect(() => {
     if (messages.length > 0) {
       setLastMsgId(messages[messages.length - 1].id);
     }
   }, [messages]);
 
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -398,174 +398,21 @@ I'm your AI training coach. Log workouts naturally, get progressive overload rec
 
       <div className="w-full max-w-6xl h-[90vh] flex flex-col">
         <div className="flex-grow flex flex-col glassmorphism rounded-xl p-6 border border-slate-700/30 relative">
-          <div className="flex items-center mb-6">
-            <h1 className="text-2xl font-bold text-gold">Golden Harbor</h1>
-            <div className="ml-auto flex items-center gap-3">
-              <Link
-                className="px-4 py-2 bg-gold hover:bg-gold/90 text-navy-900 rounded-lg transition font-medium"
-                href="/metrics"
-              >
-                Dashboard
-              </Link>
-              <UserButton />
-            </div>
-          </div>
-          <div
+          <ChatHeader />
+          <ChatMessages
             ref={chatContainerRef}
-            className="flex-grow overflow-y-auto h-0 mb-2 custom-scrollbar transition-all"
-          >
-            {loadingHistory ? (
-              <div className="flex justify-center items-center h-32">
-                <div className="flex items-center space-x-2 text-blue-400">
-                  <div className="typing-dot"></div>
-                  <div className="typing-dot"></div>
-                  <div className="typing-dot"></div>
-                  <span className="ml-2 text-sm font-medium">Loading chat history...</span>
-                </div>
-              </div>
-            ) : (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.isUser ? "justify-end" : "justify-start"} mb-3`}
-                >
-                  <div
-                    className={`chat-bubble transition-all duration-200 ${
-                      message.isUser
-                        ? "bg-gold text-navy-900 rounded-xl"
-                        : "bg-navy-700/80 text-white rounded-xl border border-slate-700/30"
-                    } max-w-xl p-4 ${lastMsgId === message.id ? "animate-fadein" : ""}`}
-                  >
-                    {message.text ? (
-                      <div className="prose prose-sm prose-invert max-w-none">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                            h1: ({ children }) => (
-                              <h1 className="text-lg font-bold mb-2">{children}</h1>
-                            ),
-                            h2: ({ children }) => (
-                              <h2 className="text-base font-semibold mb-2">{children}</h2>
-                            ),
-                            h3: ({ children }) => (
-                              <h3 className="text-sm font-semibold mb-1">{children}</h3>
-                            ),
-                            ul: ({ children }) => (
-                              <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>
-                            ),
-                            ol: ({ children }) => (
-                              <ol className="list-decimal list-inside mb-2 space-y-1">
-                                {children}
-                              </ol>
-                            ),
-                            li: ({ children }) => <li className="text-sm">{children}</li>,
-                            code: ({ children, className }) => {
-                              const isInline = !className;
-                              return isInline ? (
-                                <code className="bg-slate-700 px-1 py-0.5 rounded text-xs font-mono">
-                                  {children}
-                                </code>
-                              ) : (
-                                <pre className="bg-slate-900 p-2 rounded text-xs overflow-x-auto">
-                                  <code>{children}</code>
-                                </pre>
-                              );
-                            },
-                            strong: ({ children }) => (
-                              <strong className="font-semibold">{children}</strong>
-                            ),
-                            em: ({ children }) => <em className="italic">{children}</em>,
-                            blockquote: ({ children }) => (
-                              <blockquote className="border-l-2 border-blue-400 pl-2 italic text-sm">
-                                {children}
-                              </blockquote>
-                            ),
-                            a: ({ children, href }) => (
-                              <a
-                                href={href}
-                                className="text-blue-300 hover:text-blue-200 underline"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {children}
-                              </a>
-                            ),
-                          }}
-                        >
-                          {message.text}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-1">
-                        <div className="typing-dot"></div>
-                        <div className="typing-dot"></div>
-                        <div className="typing-dot"></div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          {/* ChatGPT-like input box fixed at the bottom of chat container */}
-          <form
-            className="w-full flex items-end gap-3 mt-auto pt-2 pb-1 px-0 sticky bottom-0 z-10 bg-transparent"
-            onSubmit={(e) => {
-              e.preventDefault();
-              sendMessage();
-            }}
-          >
-            <div className="flex flex-row items-center w-full bg-navy-700/80 border border-slate-700/30 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-gold/50 transition-all duration-200 min-h-[48px]">
-              <div className="flex-grow flex items-center">
-                <textarea
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Type your message..."
-                  rows={1}
-                  className="w-full bg-transparent text-white border-none outline-none resize-none shadow-none font-normal text-base placeholder:text-slate-400 focus:outline-none focus:ring-0 leading-[1.5rem] h-7 flex items-center"
-                  style={{
-                    minHeight: "28px",
-                    maxHeight: "120px",
-                    overflowY: "auto",
-                    fontFamily: "inherit",
-                    background: "transparent",
-                    padding: 0,
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage();
-                    }
-                  }}
-                />
-              </div>
-              <Button
-                color="yellow"
-                radius="xl"
-                type="submit"
-                loading={loading}
-                className="ml-2 w-10 h-10 min-w-0 min-h-0 p-0 flex items-center justify-center rounded-lg bg-gold hover:bg-gold/90 text-navy-900 transition-all duration-150 active:scale-95 send-btn"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2.2}
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </Button>
-            </div>
-          </form>
+            messages={messages}
+            loadingHistory={loadingHistory}
+            lastMessageId={lastMsgId}
+          />
+          <ChatInput
+            inputText={inputText}
+            setInputText={setInputText}
+            onSendMessage={sendMessage}
+            loading={loading}
+          />
         </div>
       </div>
-      {/* Styles moved to app/globals.css for consolidation */}
     </div>
   );
 }

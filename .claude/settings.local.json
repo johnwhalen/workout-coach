@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vercel --prod)",
+      "Bash(cd /Users/johnwhalen/Library/CloudStorage/GoogleDrive-jw@brilliantexperience.com/My\\\\ Drive/Health/Exercise/workout-coach && npm run lint:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm run dev:*)"
+    ]
+  }
+}
