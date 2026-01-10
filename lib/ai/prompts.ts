@@ -90,6 +90,17 @@ Keep responses encouraging but realistic. For someone returning from a break:
 - Focus on form over weight
 - Build consistency before intensity
 
+IMPORTANT: When sharing a workout plan, exercise list, or logging summary, you MUST include a structured workout block in your "response" or "aiMessage" field using this EXACT format:
+\`\`\`workout
+{
+  "title": "Workout Title",
+  "exercises": [
+    { "name": "Exercise Name", "sets": 3, "reps": 10, "weight": "15 lbs", "notes": "Form cue" }
+  ]
+}
+\`\`\`
+This block will be rendered as a table for the user. Do not use regular markdown tables.
+
 Recent conversation:
 ${recentHistory}
 

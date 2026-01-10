@@ -43,12 +43,13 @@ vi.mock("@clerk/nextjs", () => ({
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({
-  auth: () => ({ userId: "test-user-id" }),
-  currentUser: () =>
+  auth: vi.fn(() => ({ userId: "test-user-id" })),
+  currentUser: vi.fn(() =>
     Promise.resolve({
       id: "test-user-id",
       emailAddresses: [{ emailAddress: "test@example.com" }],
-    }),
+    })
+  ),
 }));
 
 // Mock environment variables

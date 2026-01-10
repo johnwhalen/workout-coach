@@ -57,7 +57,9 @@ Progress visualization will be available in the app at `/metrics`
 - [ ] Bench Press: 25 lbs x 10 reps
 - [ ] Goblet Squat: 35 lbs x 10 reps
 - [ ] Romanian Deadlift: 55 lbs x 10 reps
-- [ ] Change weights and measures to feet and lbs (currently kg/cm in schema)
+- [x] Change weights and measures to feet and lbs (currently kg/cm in schema)
+- [x] Implement structured workout table display in chat
+- [ ] Add a changelog to track app updates
 
 ---
 
