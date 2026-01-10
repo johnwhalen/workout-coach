@@ -2,15 +2,12 @@
  * Sets API endpoint
  *
  * POST /api/sets - Get sets for a specific workout
- *
- * Security: Validates that the workout belongs to the requesting user
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/prisma/prisma";
 import { currentUser } from "@clerk/nextjs/server";
-import { validateWorkoutOwnership } from "@/lib/db/lookups";
 import { logger } from "@/lib/utils/logger";
+import { WorkoutService } from "@/lib/services/workout.service";
 
 export const dynamic = "force-dynamic";
 
@@ -28,17 +25,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Workout ID is required" }, { status: 400 });
     }
 
-    // Validate user owns this workout (through routine)
-    const isOwner = await validateWorkoutOwnership(user.id, workoutId);
-    if (!isOwner) {
+    const sets = await WorkoutService.getSetsForWorkout(user.id, workoutId);
+
+    if (sets === null) {
       return NextResponse.json({ error: "Workout not found" }, { status: 404 });
     }
-
-    const sets = await prisma.set.findMany({
-      where: {
-        workout_id: workoutId,
-      },
-    });
 
     return NextResponse.json({ sets });
   } catch (error) {

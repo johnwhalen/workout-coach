@@ -5,13 +5,12 @@
  */
 
 import { processWithAI } from "@/lib/ai";
-import prisma from "@/prisma/prisma";
 import { NextRequest } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { checkRateLimit, getRateLimitHeaders } from "@/lib/utils/rate-limit";
 import { createLogger, generateRequestId } from "@/lib/utils/logger";
-import { findOrCreateRoutine, findOrCreateWorkout } from "@/lib/db/lookups";
+import { ChatActionHandler } from "@/lib/api/handlers/chat-handler";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -36,6 +35,7 @@ export async function POST(req: NextRequest) {
   const log = createLogger({ source: "api/chat", requestId, userId: authUser.id });
   log.info("Chat request started");
 
+  // Authentication and Rate Limiting
   const rateLimit = checkRateLimit(authUser.id);
   if (!rateLimit.allowed) {
     log.warn("Rate limit exceeded", { remaining: rateLimit.remaining });
@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Request Validation
   let reqBody;
   try {
     reqBody = await req.json();
@@ -78,112 +79,36 @@ export async function POST(req: NextRequest) {
 
   const { prompt } = parseResult.data;
   const userId = authUser.id;
-  log.info("Processing prompt", { promptLength: prompt.length });
+
+  // Initialize Action Handler
+  const actionHandler = new ChatActionHandler(userId, log);
 
   const stream = new ReadableStream({
     async start(controller) {
       try {
+        // 1. Notify client processing started
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({ type: "start", message: "Analyzing your request..." })}\n\n`
           )
         );
 
+        // 2. Process with AI
         const result = await processWithAI(prompt, userId);
-        const responseMessage = result.message || result.response || "I understood your request.";
 
-        if (result.action === "fitness_response" || result.action === "fitness_question") {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "complete",
-                message: responseMessage,
-                isComplete: true,
-              })}\n\n`
-            )
-          );
-        } else if (result.action === "check_in") {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "complete",
-                message: responseMessage,
-                isComplete: true,
-              })}\n\n`
-            )
-          );
-        } else if (result.action === "get_recommendation" && result.recommendation) {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "complete",
-                message: result.recommendation.aiMessage || responseMessage,
-                isComplete: true,
-              })}\n\n`
-            )
-          );
-        } else if (
-          result.action === "log_workout" ||
-          result.action === "log_workouts" ||
-          result.action === "add_workout" ||
-          result.action === "add_workouts" ||
-          result.action === "record_workout" ||
-          result.action === "record_workouts" ||
-          result.action === "save_workout" ||
-          result.action === "save_workouts"
-        ) {
-          const { workoutName, sets, routineName, date, totalCalories } = result;
+        // 3. Handle Actions (side effects, db updates)
+        const responseMessage = await actionHandler.handle(result);
 
-          const routineId = await findOrCreateRoutine(userId, routineName || "General Workout");
-          const workoutId = await findOrCreateWorkout(
-            userId,
-            routineId,
-            workoutName?.[0] || "Workout"
-          );
-
-          if (totalCalories) {
-            await prisma.workout.update({
-              where: { workout_id: workoutId },
-              data: { total_calories_burned: totalCalories },
-            });
-          }
-
-          if (sets && sets.length > 0) {
-            await Promise.all(
-              sets.map((set) =>
-                prisma.set.create({
-                  data: {
-                    workout_id: workoutId,
-                    set_reps: set.reps,
-                    set_weight: parseFloat(String(set.weight)),
-                    calories_burned: set.calories || null,
-                    date: new Date(date || new Date()),
-                  },
-                })
-              )
-            );
-          }
-
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "complete",
-                message: responseMessage,
-                isComplete: true,
-              })}\n\n`
-            )
-          );
-        } else {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: "complete",
-                message: responseMessage,
-                isComplete: true,
-              })}\n\n`
-            )
-          );
-        }
+        // 4. Send final response
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "complete",
+              message: responseMessage,
+              isComplete: true,
+            })}\n\n`
+          )
+        );
       } catch (error) {
         log.error("Streaming error", { durationMs: Date.now() - startTime }, error as Error);
         controller.enqueue(

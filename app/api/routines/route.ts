@@ -5,9 +5,9 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/prisma/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { logger } from "@/lib/utils/logger";
+import { RoutineService } from "@/lib/services/routine.service";
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +19,7 @@ export async function GET(_req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const routines = await prisma.routine.findMany({
-      where: {
-        user_id: user.id,
-      },
-    });
+    const routines = await RoutineService.getRoutinesForUser(user.id);
 
     return NextResponse.json({ routines });
   } catch (error) {

@@ -2,15 +2,12 @@
  * Workouts API endpoint
  *
  * POST /api/workouts - Get workouts for a specific routine
- *
- * Security: Validates that the routine belongs to the requesting user
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/prisma/prisma";
 import { currentUser } from "@clerk/nextjs/server";
-import { validateRoutineOwnership } from "@/lib/db/lookups";
 import { logger } from "@/lib/utils/logger";
+import { WorkoutService } from "@/lib/services/workout.service";
 
 export const dynamic = "force-dynamic";
 
@@ -28,18 +25,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Routine ID is required" }, { status: 400 });
     }
 
-    // Validate user owns this routine
-    const isOwner = await validateRoutineOwnership(user.id, routineId);
-    if (!isOwner) {
+    const workouts = await WorkoutService.getWorkoutsForRoutine(user.id, routineId);
+
+    if (workouts === null) {
       logger.warn("Routine access denied", { source: "api/workouts", userId: user.id, routineId });
       return NextResponse.json({ error: "Routine not found" }, { status: 404 });
     }
-
-    const workouts = await prisma.workout.findMany({
-      where: {
-        routine_id: routineId,
-      },
-    });
 
     return NextResponse.json({ workouts });
   } catch (error) {
