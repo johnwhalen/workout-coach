@@ -11,6 +11,7 @@ import { z } from "zod";
 import { checkRateLimit, getRateLimitHeaders } from "@/lib/utils/rate-limit";
 import { createLogger, generateRequestId } from "@/lib/utils/logger";
 import { ChatActionHandler } from "@/lib/api/handlers/chat-handler";
+import { isLogWorkoutAction } from "@/types/ai";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -98,6 +99,7 @@ export async function POST(req: NextRequest) {
 
         // 3. Handle Actions (side effects, db updates)
         const responseMessage = await actionHandler.handle(result);
+        const workoutLogged = isLogWorkoutAction(result);
 
         // 4. Send final response
         controller.enqueue(
@@ -106,6 +108,7 @@ export async function POST(req: NextRequest) {
               type: "complete",
               message: responseMessage,
               isComplete: true,
+              workoutLogged,
             })}\n\n`
           )
         );

@@ -12,10 +12,11 @@ export function buildSystemPrompt(userProfile: UserProfile | null, recentHistory
   if (userProfile && userProfile.profile_complete) {
     personalizedContext = `
 User's Fitness Profile:
-- Current Weight: ${userProfile.current_weight}kg
-- Height: ${userProfile.height}cm
-- Goal Weight: ${userProfile.goal_weight}kg
+- Current Weight: ${userProfile.current_weight} lbs
+- Height: ${userProfile.height} inches
+- Goal Weight: ${userProfile.goal_weight} lbs
 - Fitness Goal: ${userProfile.fitness_goal?.replace("_", " ")}
+
 
 The user is returning to training after a 3-6 month break.
 Starting weights should be ~50% of previous maximums.

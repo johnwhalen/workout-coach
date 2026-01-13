@@ -9,11 +9,14 @@ export interface WorkoutExercise {
   weight?: string;
   duration?: string;
   notes?: string;
+  supersetGroup?: string; // Optional group ID for visual grouping
 }
 
 export interface WorkoutTableData {
   title?: string;
   exercises: WorkoutExercise[];
+  workoutId?: string; // For tracking/logging purposes
+  isLogged?: boolean; // For optimistic UI state
 }
 
 export interface ParsedMessage {

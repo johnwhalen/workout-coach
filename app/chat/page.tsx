@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import FitnessProfileModal from "@/components/modals/FitnessProfileModal";
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/chat";
+import { WorkoutSidebar } from "@/components/chat/WorkoutSidebar";
 
 interface ChatMessage {
   id: number;
@@ -31,6 +32,8 @@ export default function ChatBox() {
   const [user, setUser] = useState("");
   const [showFitnessModal, setShowFitnessModal] = useState(false);
   const [lastMsgId, setLastMsgId] = useState<number | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
   const adduser = async () => {
     try {
@@ -226,12 +229,20 @@ export default function ChatBox() {
                       msg.id === aiMessageId ? { ...msg, text: finalMessage } : msg
                     )
                   );
+
+                  if (data.workoutLogged) {
+                    setSidebarRefreshTrigger((prev) => prev + 1);
+                  }
                 } else if (data.type === "error") {
                   setMessages((prevMessages) =>
                     prevMessages.map((msg) =>
                       msg.id === aiMessageId ? { ...msg, text: "Error: " + data.message } : msg
                     )
                   );
+                }
+
+                if (data.workoutLogged) {
+                  setSidebarRefreshTrigger((prev) => prev + 1);
                 }
               } catch (parseError) {
                 console.error("Error parsing streaming data:", parseError, "Line:", line);
@@ -396,8 +407,13 @@ export default function ChatBox() {
         }}
       />
 
-      <div className="w-full max-w-6xl h-[90vh] flex flex-col">
-        <div className="flex-grow flex flex-col glassmorphism rounded-xl p-6 border border-slate-700/30 relative">
+      <div className="w-full max-w-7xl h-[90vh] flex gap-4">
+        <WorkoutSidebar
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          refreshTrigger={sidebarRefreshTrigger}
+        />
+        <div className="flex-grow flex flex-col glassmorphism rounded-xl p-6 border border-slate-700/30 relative overflow-hidden">
           <ChatHeader />
           <ChatMessages
             ref={chatContainerRef}

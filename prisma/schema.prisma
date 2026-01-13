@@ -59,11 +59,17 @@ model User {
   created_at      DateTime         @default(now())
   name            String?
   // Fitness Profile Fields
-  current_weight  Float?           // Weight in kg
-  height          Float?           // Height in cm
-  goal_weight     Float?           // Goal weight in kg
+  current_weight  Float?           // Weight in lbs
+  height          Float?           // Height in inches
+  goal_weight     Float?           // Goal weight in lbs
   fitness_goal    String?          // "lose_weight", "gain_weight", "maintain_weight", "add_muscle"
   profile_complete Boolean         @default(false) // Whether the user has completed their fitness profile
+  
+  equipment       String[]         @default([])
+  experience_level String?
+
+  milestones      UserMilestone[]
+
   Routine         Routine[]
   UserChatHistory UserChatHistory?
 }
@@ -72,4 +78,18 @@ model UserChatHistory {
   userId   String   @id
   messages String[]
   user     User     @relation(fields: [userId], references: [user_id])
+}
+
+model UserMilestone {
+  id           String    @id @default(uuid())
+  user_id      String
+  description  String
+  target_value Float?    // Optional numeric target (e.g., 25.0)
+  target_metric String?  // Optional metric (e.g., "lbs", "reps")
+  is_completed Boolean   @default(false)
+  completed_at DateTime?
+  
+  user         User      @relation(fields: [user_id], references: [user_id])
+  
+  @@index([user_id])
 }

@@ -19,6 +19,7 @@ export interface ChatStreamEvent {
   content?: string;
   isComplete?: boolean;
   caloriesInfo?: CaloriesInfo;
+  workoutLogged?: boolean;
 }
 
 export interface CaloriesInfo {

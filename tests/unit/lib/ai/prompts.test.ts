@@ -91,13 +91,13 @@ describe("buildSystemPrompt", () => {
 
     it("includes user weight and height", () => {
       const result = buildSystemPrompt(completeProfile, "");
-      expect(result).toContain("Current Weight: 85kg");
-      expect(result).toContain("Height: 180cm");
+      expect(result).toContain("Current Weight: 85 lbs");
+      expect(result).toContain("Height: 180 inches");
     });
 
     it("includes goal weight", () => {
       const result = buildSystemPrompt(completeProfile, "");
-      expect(result).toContain("Goal Weight: 80kg");
+      expect(result).toContain("Goal Weight: 80 lbs");
     });
 
     it("includes fitness goal with underscore replaced by space", () => {
@@ -158,7 +158,7 @@ describe("buildSystemPrompt", () => {
 
       // Should not throw
       const result = buildSystemPrompt(profileWithNulls, "");
-      expect(result).toContain("Current Weight: nullkg");
+      expect(result).toContain("Current Weight: null lbs");
     });
 
     it("handles fitness_goal with no underscores", () => {
@@ -227,7 +227,7 @@ describe("buildSystemPrompt", () => {
       const history = "User: How many calories should I eat?";
 
       const result = buildSystemPrompt(profile, history);
-      expect(result).toContain("Current Weight: 80kg");
+      expect(result).toContain("Current Weight: 80 lbs");
       expect(result).toContain(history);
     });
   });

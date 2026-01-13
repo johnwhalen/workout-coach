@@ -1,6 +1,6 @@
 # Exercise Library
 
-Your exercises with professional YouTube demos for proper form.
+A collection of exercises with professional YouTube demos for proper form.
 
 ## Push Exercises
 
@@ -88,16 +88,16 @@ Your exercises with professional YouTube demos for proper form.
 
 ## Cardio
 
-### Rowing (Hydrow)
+### Rowing
 
 - **Muscles**: Full body (legs, back, arms, core)
-- **Equipment**: Hydrow rowing machine
+- **Equipment**: Rowing machine
 - **Video**: [Concept2 - Rowing Technique](https://www.youtube.com/watch?v=zQ82RYIFLN8)
 - **Use for**: 5-10 min warm-up before lifting
 
 ---
 
-## Superset Pairings (from your Workouts.xlsx)
+## Example Superset Pairings
 
 ### Workout A
 
@@ -120,9 +120,9 @@ Your exercises with professional YouTube demos for proper form.
 
 ## Adding New Exercises
 
-When adding new exercises, include:
+When adding new exercises to the database, include:
 
 1. Exercise name
 2. Target muscles
 3. Required equipment
-4. YouTube link to professional demo (prefer Jeff Nippard, AthleanX, or Renaissance Periodization)
+4. YouTube link to professional demo

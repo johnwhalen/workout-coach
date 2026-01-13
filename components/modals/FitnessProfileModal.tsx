@@ -17,7 +17,8 @@ export default function FitnessProfileModal({
 }: FitnessProfileModalProps) {
   const [formData, setFormData] = useState({
     currentWeight: "",
-    height: "",
+    heightFt: "",
+    heightIn: "",
     goalWeight: "",
     fitnessGoal: "",
   });
@@ -35,7 +36,8 @@ export default function FitnessProfileModal({
 
     if (
       !formData.currentWeight ||
-      !formData.height ||
+      !formData.heightFt ||
+      !formData.heightIn ||
       !formData.goalWeight ||
       !formData.fitnessGoal
     ) {
@@ -45,10 +47,18 @@ export default function FitnessProfileModal({
 
     setLoading(true);
     try {
+      // Convert feet/inches to total inches for storage
+      const totalInches = parseInt(formData.heightFt) * 12 + parseInt(formData.heightIn);
+
       const response = await fetch("/api/users/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          currentWeight: formData.currentWeight,
+          height: totalInches.toString(),
+          goalWeight: formData.goalWeight,
+          fitnessGoal: formData.fitnessGoal,
+        }),
       });
       const data = await response.json();
       if (data.success) {
@@ -75,11 +85,10 @@ export default function FitnessProfileModal({
           </Title>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* 2x2 grid layout */}
             <div className="grid grid-cols-2 gap-4">
               <TextInput
-                label="Current Weight (kg)"
-                placeholder="70"
+                label="Current Weight (lbs)"
+                placeholder="165"
                 type="number"
                 step="0.1"
                 value={formData.currentWeight}
@@ -91,8 +100,8 @@ export default function FitnessProfileModal({
               />
 
               <TextInput
-                label="Goal Weight (kg)"
-                placeholder="65"
+                label="Goal Weight (lbs)"
+                placeholder="160"
                 type="number"
                 step="0.1"
                 value={formData.goalWeight}
@@ -104,30 +113,41 @@ export default function FitnessProfileModal({
               />
 
               <TextInput
-                label="Height (cm)"
-                placeholder="175"
+                label="Height (ft)"
+                placeholder="5"
                 type="number"
-                step="0.1"
-                value={formData.height}
+                value={formData.heightFt}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormData({ ...formData, height: e.target.value })
+                  setFormData({ ...formData, heightFt: e.target.value })
                 }
                 required
                 styles={darkInputStyles}
               />
 
-              <Select
-                label="Goal"
-                placeholder="Select"
-                data={fitnessGoalOptions}
-                value={formData.fitnessGoal}
-                onChange={(value: string | null) =>
-                  setFormData({ ...formData, fitnessGoal: value || "" })
+              <TextInput
+                label="Height (in)"
+                placeholder="10"
+                type="number"
+                value={formData.heightIn}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormData({ ...formData, heightIn: e.target.value })
                 }
                 required
                 styles={darkInputStyles}
               />
             </div>
+
+            <Select
+              label="Goal"
+              placeholder="Select"
+              data={fitnessGoalOptions}
+              value={formData.fitnessGoal}
+              onChange={(value: string | null) =>
+                setFormData({ ...formData, fitnessGoal: value || "" })
+              }
+              required
+              styles={darkInputStyles}
+            />
 
             <div className="flex gap-3 pt-2">
               <Button

@@ -24,10 +24,11 @@ const FitnessProfileSchema = z.object({
   height: z.string().refine(
     (val) => {
       const num = parseFloat(val);
-      return !isNaN(num) && num > 0 && num < 300;
+      return !isNaN(num) && num > 0 && num < 120;
     },
-    { message: "Height must be between 0 and 300 cm" }
+    { message: "Height must be between 0 and 120 inches" }
   ),
+
   goalWeight: z.string().refine(
     (val) => {
       const num = parseFloat(val);
@@ -36,6 +37,8 @@ const FitnessProfileSchema = z.object({
     { message: "Goal weight must be between 0 and 1000 lbs" }
   ),
   fitnessGoal: z.enum(["lose_weight", "gain_weight", "maintain_weight", "add_muscle"]),
+  equipment: z.array(z.string()).optional(),
+  experienceLevel: z.string().optional(),
 });
 
 export async function GET(_request: NextRequest) {
@@ -56,6 +59,8 @@ export async function GET(_request: NextRequest) {
         goal_weight: true,
         fitness_goal: true,
         profile_complete: true,
+        equipment: true,
+        experience_level: true,
       },
     });
 
@@ -87,7 +92,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { currentWeight, height, goalWeight, fitnessGoal } = parseResult.data;
+    const { currentWeight, height, goalWeight, fitnessGoal, equipment, experienceLevel } =
+      parseResult.data;
 
     const updatedUser = await prisma.user.update({
       where: {
@@ -99,6 +105,8 @@ export async function POST(request: NextRequest) {
         goal_weight: parseFloat(goalWeight),
         fitness_goal: fitnessGoal,
         profile_complete: true,
+        equipment: equipment || [],
+        experience_level: experienceLevel,
       },
     });
 
